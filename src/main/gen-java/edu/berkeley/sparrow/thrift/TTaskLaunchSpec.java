@@ -32,6 +32,7 @@ public class TTaskLaunchSpec implements org.apache.thrift.TBase<TTaskLaunchSpec,
 
   private static final org.apache.thrift.protocol.TField TASK_ID_FIELD_DESC = new org.apache.thrift.protocol.TField("taskId", org.apache.thrift.protocol.TType.STRING, (short)1);
   private static final org.apache.thrift.protocol.TField MESSAGE_FIELD_DESC = new org.apache.thrift.protocol.TField("message", org.apache.thrift.protocol.TType.STRING, (short)2);
+  private static final org.apache.thrift.protocol.TField WORK_SPEED_FIELD_DESC = new org.apache.thrift.protocol.TField("workSpeed", org.apache.thrift.protocol.TType.STRING, (short)3);
 
   private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
   static {
@@ -41,11 +42,13 @@ public class TTaskLaunchSpec implements org.apache.thrift.TBase<TTaskLaunchSpec,
 
   public String taskId; // required
   public ByteBuffer message; // required
+  public String workSpeed; // required
 
   /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
   public enum _Fields implements org.apache.thrift.TFieldIdEnum {
     TASK_ID((short)1, "taskId"),
-    MESSAGE((short)2, "message");
+    MESSAGE((short)2, "message"),
+    WORK_SPEED((short)3, "workSpeed");
 
     private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
 
@@ -64,6 +67,8 @@ public class TTaskLaunchSpec implements org.apache.thrift.TBase<TTaskLaunchSpec,
           return TASK_ID;
         case 2: // MESSAGE
           return MESSAGE;
+        case 3: // WORK_SPEED
+          return WORK_SPEED;
         default:
           return null;
       }
@@ -111,6 +116,8 @@ public class TTaskLaunchSpec implements org.apache.thrift.TBase<TTaskLaunchSpec,
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
     tmpMap.put(_Fields.MESSAGE, new org.apache.thrift.meta_data.FieldMetaData("message", org.apache.thrift.TFieldRequirementType.DEFAULT, 
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING        , true)));
+    tmpMap.put(_Fields.WORK_SPEED, new org.apache.thrift.meta_data.FieldMetaData("workSpeed", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+        new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
     metaDataMap = Collections.unmodifiableMap(tmpMap);
     org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(TTaskLaunchSpec.class, metaDataMap);
   }
@@ -120,11 +127,13 @@ public class TTaskLaunchSpec implements org.apache.thrift.TBase<TTaskLaunchSpec,
 
   public TTaskLaunchSpec(
     String taskId,
-    ByteBuffer message)
+    ByteBuffer message,
+    String workSpeed)
   {
     this();
     this.taskId = taskId;
     this.message = message;
+    this.workSpeed = workSpeed;
   }
 
   /**
@@ -138,6 +147,9 @@ public class TTaskLaunchSpec implements org.apache.thrift.TBase<TTaskLaunchSpec,
       this.message = org.apache.thrift.TBaseHelper.copyBinary(other.message);
 ;
     }
+    if (other.isSetWorkSpeed()) {
+      this.workSpeed = other.workSpeed;
+    }
   }
 
   public TTaskLaunchSpec deepCopy() {
@@ -147,6 +159,7 @@ public class TTaskLaunchSpec implements org.apache.thrift.TBase<TTaskLaunchSpec,
   public void clear() {
     this.taskId = null;
     this.message = null;
+    this.workSpeed = null;
   }
 
   public String getTaskId() {
@@ -207,6 +220,30 @@ public class TTaskLaunchSpec implements org.apache.thrift.TBase<TTaskLaunchSpec,
     }
   }
 
+  public String getWorkSpeed() {
+    return this.workSpeed;
+  }
+
+  public TTaskLaunchSpec setWorkSpeed(String workSpeed) {
+    this.workSpeed = workSpeed;
+    return this;
+  }
+
+  public void unsetWorkSpeed() {
+    this.workSpeed = null;
+  }
+
+  /** Returns true if field workSpeed is set (has been assigned a value) and false otherwise */
+  public boolean isSetWorkSpeed() {
+    return this.workSpeed != null;
+  }
+
+  public void setWorkSpeedIsSet(boolean value) {
+    if (!value) {
+      this.workSpeed = null;
+    }
+  }
+
   public void setFieldValue(_Fields field, Object value) {
     switch (field) {
     case TASK_ID:
@@ -225,6 +262,14 @@ public class TTaskLaunchSpec implements org.apache.thrift.TBase<TTaskLaunchSpec,
       }
       break;
 
+    case WORK_SPEED:
+      if (value == null) {
+        unsetWorkSpeed();
+      } else {
+        setWorkSpeed((String)value);
+      }
+      break;
+
     }
   }
 
@@ -235,6 +280,9 @@ public class TTaskLaunchSpec implements org.apache.thrift.TBase<TTaskLaunchSpec,
 
     case MESSAGE:
       return getMessage();
+
+    case WORK_SPEED:
+      return getWorkSpeed();
 
     }
     throw new IllegalStateException();
@@ -251,6 +299,8 @@ public class TTaskLaunchSpec implements org.apache.thrift.TBase<TTaskLaunchSpec,
       return isSetTaskId();
     case MESSAGE:
       return isSetMessage();
+    case WORK_SPEED:
+      return isSetWorkSpeed();
     }
     throw new IllegalStateException();
   }
@@ -283,6 +333,15 @@ public class TTaskLaunchSpec implements org.apache.thrift.TBase<TTaskLaunchSpec,
       if (!(this_present_message && that_present_message))
         return false;
       if (!this.message.equals(that.message))
+        return false;
+    }
+
+    boolean this_present_workSpeed = true && this.isSetWorkSpeed();
+    boolean that_present_workSpeed = true && that.isSetWorkSpeed();
+    if (this_present_workSpeed || that_present_workSpeed) {
+      if (!(this_present_workSpeed && that_present_workSpeed))
+        return false;
+      if (!this.workSpeed.equals(that.workSpeed))
         return false;
     }
 
@@ -322,6 +381,16 @@ public class TTaskLaunchSpec implements org.apache.thrift.TBase<TTaskLaunchSpec,
         return lastComparison;
       }
     }
+    lastComparison = Boolean.valueOf(isSetWorkSpeed()).compareTo(typedOther.isSetWorkSpeed());
+    if (lastComparison != 0) {
+      return lastComparison;
+    }
+    if (isSetWorkSpeed()) {
+      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.workSpeed, typedOther.workSpeed);
+      if (lastComparison != 0) {
+        return lastComparison;
+      }
+    }
     return 0;
   }
 
@@ -355,6 +424,14 @@ public class TTaskLaunchSpec implements org.apache.thrift.TBase<TTaskLaunchSpec,
       sb.append("null");
     } else {
       org.apache.thrift.TBaseHelper.toString(this.message, sb);
+    }
+    first = false;
+    if (!first) sb.append(", ");
+    sb.append("workSpeed:");
+    if (this.workSpeed == null) {
+      sb.append("null");
+    } else {
+      sb.append(this.workSpeed);
     }
     first = false;
     sb.append(")");
@@ -415,6 +492,14 @@ public class TTaskLaunchSpec implements org.apache.thrift.TBase<TTaskLaunchSpec,
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
             }
             break;
+          case 3: // WORK_SPEED
+            if (schemeField.type == org.apache.thrift.protocol.TType.STRING) {
+              struct.workSpeed = iprot.readString();
+              struct.setWorkSpeedIsSet(true);
+            } else { 
+              org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
+            }
+            break;
           default:
             org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
         }
@@ -438,6 +523,11 @@ public class TTaskLaunchSpec implements org.apache.thrift.TBase<TTaskLaunchSpec,
       if (struct.message != null) {
         oprot.writeFieldBegin(MESSAGE_FIELD_DESC);
         oprot.writeBinary(struct.message);
+        oprot.writeFieldEnd();
+      }
+      if (struct.workSpeed != null) {
+        oprot.writeFieldBegin(WORK_SPEED_FIELD_DESC);
+        oprot.writeString(struct.workSpeed);
         oprot.writeFieldEnd();
       }
       oprot.writeFieldStop();
@@ -464,19 +554,25 @@ public class TTaskLaunchSpec implements org.apache.thrift.TBase<TTaskLaunchSpec,
       if (struct.isSetMessage()) {
         optionals.set(1);
       }
-      oprot.writeBitSet(optionals, 2);
+      if (struct.isSetWorkSpeed()) {
+        optionals.set(2);
+      }
+      oprot.writeBitSet(optionals, 3);
       if (struct.isSetTaskId()) {
         oprot.writeString(struct.taskId);
       }
       if (struct.isSetMessage()) {
         oprot.writeBinary(struct.message);
       }
+      if (struct.isSetWorkSpeed()) {
+        oprot.writeString(struct.workSpeed);
+      }
     }
 
     @Override
     public void read(org.apache.thrift.protocol.TProtocol prot, TTaskLaunchSpec struct) throws org.apache.thrift.TException {
       TTupleProtocol iprot = (TTupleProtocol) prot;
-      BitSet incoming = iprot.readBitSet(2);
+      BitSet incoming = iprot.readBitSet(3);
       if (incoming.get(0)) {
         struct.taskId = iprot.readString();
         struct.setTaskIdIsSet(true);
@@ -484,6 +580,10 @@ public class TTaskLaunchSpec implements org.apache.thrift.TBase<TTaskLaunchSpec,
       if (incoming.get(1)) {
         struct.message = iprot.readBinary();
         struct.setMessageIsSet(true);
+      }
+      if (incoming.get(2)) {
+        struct.workSpeed = iprot.readString();
+        struct.setWorkSpeedIsSet(true);
       }
     }
   }

@@ -33,6 +33,7 @@ public class TTaskSpec implements org.apache.thrift.TBase<TTaskSpec, TTaskSpec._
   private static final org.apache.thrift.protocol.TField TASK_ID_FIELD_DESC = new org.apache.thrift.protocol.TField("taskId", org.apache.thrift.protocol.TType.STRING, (short)1);
   private static final org.apache.thrift.protocol.TField PREFERENCE_FIELD_DESC = new org.apache.thrift.protocol.TField("preference", org.apache.thrift.protocol.TType.STRUCT, (short)2);
   private static final org.apache.thrift.protocol.TField MESSAGE_FIELD_DESC = new org.apache.thrift.protocol.TField("message", org.apache.thrift.protocol.TType.STRING, (short)3);
+  private static final org.apache.thrift.protocol.TField WORK_SPEED_FIELD_DESC = new org.apache.thrift.protocol.TField("workSpeed", org.apache.thrift.protocol.TType.STRING, (short)4);
 
   private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
   static {
@@ -43,12 +44,14 @@ public class TTaskSpec implements org.apache.thrift.TBase<TTaskSpec, TTaskSpec._
   public String taskId; // required
   public TPlacementPreference preference; // required
   public ByteBuffer message; // required
+  public String workSpeed; // required
 
   /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
   public enum _Fields implements org.apache.thrift.TFieldIdEnum {
     TASK_ID((short)1, "taskId"),
     PREFERENCE((short)2, "preference"),
-    MESSAGE((short)3, "message");
+    MESSAGE((short)3, "message"),
+    WORK_SPEED((short)4, "workSpeed");
 
     private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
 
@@ -69,6 +72,8 @@ public class TTaskSpec implements org.apache.thrift.TBase<TTaskSpec, TTaskSpec._
           return PREFERENCE;
         case 3: // MESSAGE
           return MESSAGE;
+        case 4: // WORK_SPEED
+          return WORK_SPEED;
         default:
           return null;
       }
@@ -118,6 +123,8 @@ public class TTaskSpec implements org.apache.thrift.TBase<TTaskSpec, TTaskSpec._
         new org.apache.thrift.meta_data.StructMetaData(org.apache.thrift.protocol.TType.STRUCT, TPlacementPreference.class)));
     tmpMap.put(_Fields.MESSAGE, new org.apache.thrift.meta_data.FieldMetaData("message", org.apache.thrift.TFieldRequirementType.DEFAULT, 
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING        , true)));
+    tmpMap.put(_Fields.WORK_SPEED, new org.apache.thrift.meta_data.FieldMetaData("workSpeed", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+        new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
     metaDataMap = Collections.unmodifiableMap(tmpMap);
     org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(TTaskSpec.class, metaDataMap);
   }
@@ -128,12 +135,14 @@ public class TTaskSpec implements org.apache.thrift.TBase<TTaskSpec, TTaskSpec._
   public TTaskSpec(
     String taskId,
     TPlacementPreference preference,
-    ByteBuffer message)
+    ByteBuffer message,
+    String workSpeed)
   {
     this();
     this.taskId = taskId;
     this.preference = preference;
     this.message = message;
+    this.workSpeed = workSpeed;
   }
 
   /**
@@ -150,6 +159,9 @@ public class TTaskSpec implements org.apache.thrift.TBase<TTaskSpec, TTaskSpec._
       this.message = org.apache.thrift.TBaseHelper.copyBinary(other.message);
 ;
     }
+    if (other.isSetWorkSpeed()) {
+      this.workSpeed = other.workSpeed;
+    }
   }
 
   public TTaskSpec deepCopy() {
@@ -160,6 +172,7 @@ public class TTaskSpec implements org.apache.thrift.TBase<TTaskSpec, TTaskSpec._
     this.taskId = null;
     this.preference = null;
     this.message = null;
+    this.workSpeed = null;
   }
 
   public String getTaskId() {
@@ -244,6 +257,30 @@ public class TTaskSpec implements org.apache.thrift.TBase<TTaskSpec, TTaskSpec._
     }
   }
 
+  public String getWorkSpeed() {
+    return this.workSpeed;
+  }
+
+  public TTaskSpec setWorkSpeed(String workSpeed) {
+    this.workSpeed = workSpeed;
+    return this;
+  }
+
+  public void unsetWorkSpeed() {
+    this.workSpeed = null;
+  }
+
+  /** Returns true if field workSpeed is set (has been assigned a value) and false otherwise */
+  public boolean isSetWorkSpeed() {
+    return this.workSpeed != null;
+  }
+
+  public void setWorkSpeedIsSet(boolean value) {
+    if (!value) {
+      this.workSpeed = null;
+    }
+  }
+
   public void setFieldValue(_Fields field, Object value) {
     switch (field) {
     case TASK_ID:
@@ -270,6 +307,14 @@ public class TTaskSpec implements org.apache.thrift.TBase<TTaskSpec, TTaskSpec._
       }
       break;
 
+    case WORK_SPEED:
+      if (value == null) {
+        unsetWorkSpeed();
+      } else {
+        setWorkSpeed((String)value);
+      }
+      break;
+
     }
   }
 
@@ -283,6 +328,9 @@ public class TTaskSpec implements org.apache.thrift.TBase<TTaskSpec, TTaskSpec._
 
     case MESSAGE:
       return getMessage();
+
+    case WORK_SPEED:
+      return getWorkSpeed();
 
     }
     throw new IllegalStateException();
@@ -301,6 +349,8 @@ public class TTaskSpec implements org.apache.thrift.TBase<TTaskSpec, TTaskSpec._
       return isSetPreference();
     case MESSAGE:
       return isSetMessage();
+    case WORK_SPEED:
+      return isSetWorkSpeed();
     }
     throw new IllegalStateException();
   }
@@ -342,6 +392,15 @@ public class TTaskSpec implements org.apache.thrift.TBase<TTaskSpec, TTaskSpec._
       if (!(this_present_message && that_present_message))
         return false;
       if (!this.message.equals(that.message))
+        return false;
+    }
+
+    boolean this_present_workSpeed = true && this.isSetWorkSpeed();
+    boolean that_present_workSpeed = true && that.isSetWorkSpeed();
+    if (this_present_workSpeed || that_present_workSpeed) {
+      if (!(this_present_workSpeed && that_present_workSpeed))
+        return false;
+      if (!this.workSpeed.equals(that.workSpeed))
         return false;
     }
 
@@ -391,6 +450,16 @@ public class TTaskSpec implements org.apache.thrift.TBase<TTaskSpec, TTaskSpec._
         return lastComparison;
       }
     }
+    lastComparison = Boolean.valueOf(isSetWorkSpeed()).compareTo(typedOther.isSetWorkSpeed());
+    if (lastComparison != 0) {
+      return lastComparison;
+    }
+    if (isSetWorkSpeed()) {
+      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.workSpeed, typedOther.workSpeed);
+      if (lastComparison != 0) {
+        return lastComparison;
+      }
+    }
     return 0;
   }
 
@@ -432,6 +501,14 @@ public class TTaskSpec implements org.apache.thrift.TBase<TTaskSpec, TTaskSpec._
       sb.append("null");
     } else {
       org.apache.thrift.TBaseHelper.toString(this.message, sb);
+    }
+    first = false;
+    if (!first) sb.append(", ");
+    sb.append("workSpeed:");
+    if (this.workSpeed == null) {
+      sb.append("null");
+    } else {
+      sb.append(this.workSpeed);
     }
     first = false;
     sb.append(")");
@@ -501,6 +578,14 @@ public class TTaskSpec implements org.apache.thrift.TBase<TTaskSpec, TTaskSpec._
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
             }
             break;
+          case 4: // WORK_SPEED
+            if (schemeField.type == org.apache.thrift.protocol.TType.STRING) {
+              struct.workSpeed = iprot.readString();
+              struct.setWorkSpeedIsSet(true);
+            } else { 
+              org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
+            }
+            break;
           default:
             org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
         }
@@ -531,6 +616,11 @@ public class TTaskSpec implements org.apache.thrift.TBase<TTaskSpec, TTaskSpec._
         oprot.writeBinary(struct.message);
         oprot.writeFieldEnd();
       }
+      if (struct.workSpeed != null) {
+        oprot.writeFieldBegin(WORK_SPEED_FIELD_DESC);
+        oprot.writeString(struct.workSpeed);
+        oprot.writeFieldEnd();
+      }
       oprot.writeFieldStop();
       oprot.writeStructEnd();
     }
@@ -558,7 +648,10 @@ public class TTaskSpec implements org.apache.thrift.TBase<TTaskSpec, TTaskSpec._
       if (struct.isSetMessage()) {
         optionals.set(2);
       }
-      oprot.writeBitSet(optionals, 3);
+      if (struct.isSetWorkSpeed()) {
+        optionals.set(3);
+      }
+      oprot.writeBitSet(optionals, 4);
       if (struct.isSetTaskId()) {
         oprot.writeString(struct.taskId);
       }
@@ -568,12 +661,15 @@ public class TTaskSpec implements org.apache.thrift.TBase<TTaskSpec, TTaskSpec._
       if (struct.isSetMessage()) {
         oprot.writeBinary(struct.message);
       }
+      if (struct.isSetWorkSpeed()) {
+        oprot.writeString(struct.workSpeed);
+      }
     }
 
     @Override
     public void read(org.apache.thrift.protocol.TProtocol prot, TTaskSpec struct) throws org.apache.thrift.TException {
       TTupleProtocol iprot = (TTupleProtocol) prot;
-      BitSet incoming = iprot.readBitSet(3);
+      BitSet incoming = iprot.readBitSet(4);
       if (incoming.get(0)) {
         struct.taskId = iprot.readString();
         struct.setTaskIdIsSet(true);
@@ -586,6 +682,10 @@ public class TTaskSpec implements org.apache.thrift.TBase<TTaskSpec, TTaskSpec._
       if (incoming.get(2)) {
         struct.message = iprot.readBinary();
         struct.setMessageIsSet(true);
+      }
+      if (incoming.get(3)) {
+        struct.workSpeed = iprot.readString();
+        struct.setWorkSpeedIsSet(true);
       }
     }
   }
