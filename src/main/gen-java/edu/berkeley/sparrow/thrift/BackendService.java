@@ -31,13 +31,13 @@ public class BackendService {
 
   public interface Iface {
 
-    public void launchTask(ByteBuffer message, edu.berkeley.sparrow.thrift.TFullTaskId taskId, edu.berkeley.sparrow.thrift.TUserGroupInfo user) throws org.apache.thrift.TException;
+    public void launchTask(ByteBuffer message, edu.berkeley.sparrow.thrift.TFullTaskId taskId, edu.berkeley.sparrow.thrift.TUserGroupInfo user, String workSpeed) throws org.apache.thrift.TException;
 
   }
 
   public interface AsyncIface {
 
-    public void launchTask(ByteBuffer message, edu.berkeley.sparrow.thrift.TFullTaskId taskId, edu.berkeley.sparrow.thrift.TUserGroupInfo user, org.apache.thrift.async.AsyncMethodCallback<AsyncClient.launchTask_call> resultHandler) throws org.apache.thrift.TException;
+    public void launchTask(ByteBuffer message, edu.berkeley.sparrow.thrift.TFullTaskId taskId, edu.berkeley.sparrow.thrift.TUserGroupInfo user, String workSpeed, org.apache.thrift.async.AsyncMethodCallback<AsyncClient.launchTask_call> resultHandler) throws org.apache.thrift.TException;
 
   }
 
@@ -61,18 +61,19 @@ public class BackendService {
       super(iprot, oprot);
     }
 
-    public void launchTask(ByteBuffer message, edu.berkeley.sparrow.thrift.TFullTaskId taskId, edu.berkeley.sparrow.thrift.TUserGroupInfo user) throws org.apache.thrift.TException
+    public void launchTask(ByteBuffer message, edu.berkeley.sparrow.thrift.TFullTaskId taskId, edu.berkeley.sparrow.thrift.TUserGroupInfo user, String workSpeed) throws org.apache.thrift.TException
     {
-      send_launchTask(message, taskId, user);
+      send_launchTask(message, taskId, user, workSpeed);
       recv_launchTask();
     }
 
-    public void send_launchTask(ByteBuffer message, edu.berkeley.sparrow.thrift.TFullTaskId taskId, edu.berkeley.sparrow.thrift.TUserGroupInfo user) throws org.apache.thrift.TException
+    public void send_launchTask(ByteBuffer message, edu.berkeley.sparrow.thrift.TFullTaskId taskId, edu.berkeley.sparrow.thrift.TUserGroupInfo user, String workSpeed) throws org.apache.thrift.TException
     {
       launchTask_args args = new launchTask_args();
       args.setMessage(message);
       args.setTaskId(taskId);
       args.setUser(user);
+      args.setWorkSpeed(workSpeed);
       sendBase("launchTask", args);
     }
 
@@ -101,9 +102,9 @@ public class BackendService {
       super(protocolFactory, clientManager, transport);
     }
 
-    public void launchTask(ByteBuffer message, edu.berkeley.sparrow.thrift.TFullTaskId taskId, edu.berkeley.sparrow.thrift.TUserGroupInfo user, org.apache.thrift.async.AsyncMethodCallback<launchTask_call> resultHandler) throws org.apache.thrift.TException {
+    public void launchTask(ByteBuffer message, edu.berkeley.sparrow.thrift.TFullTaskId taskId, edu.berkeley.sparrow.thrift.TUserGroupInfo user, String workSpeed, org.apache.thrift.async.AsyncMethodCallback<launchTask_call> resultHandler) throws org.apache.thrift.TException {
       checkReady();
-      launchTask_call method_call = new launchTask_call(message, taskId, user, resultHandler, this, ___protocolFactory, ___transport);
+      launchTask_call method_call = new launchTask_call(message, taskId, user, workSpeed, resultHandler, this, ___protocolFactory, ___transport);
       this.___currentMethod = method_call;
       ___manager.call(method_call);
     }
@@ -112,11 +113,13 @@ public class BackendService {
       private ByteBuffer message;
       private edu.berkeley.sparrow.thrift.TFullTaskId taskId;
       private edu.berkeley.sparrow.thrift.TUserGroupInfo user;
-      public launchTask_call(ByteBuffer message, edu.berkeley.sparrow.thrift.TFullTaskId taskId, edu.berkeley.sparrow.thrift.TUserGroupInfo user, org.apache.thrift.async.AsyncMethodCallback<launchTask_call> resultHandler, org.apache.thrift.async.TAsyncClient client, org.apache.thrift.protocol.TProtocolFactory protocolFactory, org.apache.thrift.transport.TNonblockingTransport transport) throws org.apache.thrift.TException {
+      private String workSpeed;
+      public launchTask_call(ByteBuffer message, edu.berkeley.sparrow.thrift.TFullTaskId taskId, edu.berkeley.sparrow.thrift.TUserGroupInfo user, String workSpeed, org.apache.thrift.async.AsyncMethodCallback<launchTask_call> resultHandler, org.apache.thrift.async.TAsyncClient client, org.apache.thrift.protocol.TProtocolFactory protocolFactory, org.apache.thrift.transport.TNonblockingTransport transport) throws org.apache.thrift.TException {
         super(client, protocolFactory, transport, resultHandler, false);
         this.message = message;
         this.taskId = taskId;
         this.user = user;
+        this.workSpeed = workSpeed;
       }
 
       public void write_args(org.apache.thrift.protocol.TProtocol prot) throws org.apache.thrift.TException {
@@ -125,6 +128,7 @@ public class BackendService {
         args.setMessage(message);
         args.setTaskId(taskId);
         args.setUser(user);
+        args.setWorkSpeed(workSpeed);
         args.write(prot);
         prot.writeMessageEnd();
       }
@@ -167,7 +171,7 @@ public class BackendService {
 
       public launchTask_result getResult(I iface, launchTask_args args) throws org.apache.thrift.TException {
         launchTask_result result = new launchTask_result();
-        iface.launchTask(args.message, args.taskId, args.user);
+        iface.launchTask(args.message, args.taskId, args.user, args.workSpeed);
         return result;
       }
     }
@@ -180,6 +184,7 @@ public class BackendService {
     private static final org.apache.thrift.protocol.TField MESSAGE_FIELD_DESC = new org.apache.thrift.protocol.TField("message", org.apache.thrift.protocol.TType.STRING, (short)1);
     private static final org.apache.thrift.protocol.TField TASK_ID_FIELD_DESC = new org.apache.thrift.protocol.TField("taskId", org.apache.thrift.protocol.TType.STRUCT, (short)2);
     private static final org.apache.thrift.protocol.TField USER_FIELD_DESC = new org.apache.thrift.protocol.TField("user", org.apache.thrift.protocol.TType.STRUCT, (short)3);
+    private static final org.apache.thrift.protocol.TField WORK_SPEED_FIELD_DESC = new org.apache.thrift.protocol.TField("workSpeed", org.apache.thrift.protocol.TType.STRING, (short)4);
 
     private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
     static {
@@ -190,12 +195,14 @@ public class BackendService {
     public ByteBuffer message; // required
     public edu.berkeley.sparrow.thrift.TFullTaskId taskId; // required
     public edu.berkeley.sparrow.thrift.TUserGroupInfo user; // required
+    public String workSpeed; // required
 
     /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
     public enum _Fields implements org.apache.thrift.TFieldIdEnum {
       MESSAGE((short)1, "message"),
       TASK_ID((short)2, "taskId"),
-      USER((short)3, "user");
+      USER((short)3, "user"),
+      WORK_SPEED((short)4, "workSpeed");
 
       private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
 
@@ -216,6 +223,8 @@ public class BackendService {
             return TASK_ID;
           case 3: // USER
             return USER;
+          case 4: // WORK_SPEED
+            return WORK_SPEED;
           default:
             return null;
         }
@@ -265,6 +274,8 @@ public class BackendService {
           new org.apache.thrift.meta_data.StructMetaData(org.apache.thrift.protocol.TType.STRUCT, edu.berkeley.sparrow.thrift.TFullTaskId.class)));
       tmpMap.put(_Fields.USER, new org.apache.thrift.meta_data.FieldMetaData("user", org.apache.thrift.TFieldRequirementType.DEFAULT, 
           new org.apache.thrift.meta_data.StructMetaData(org.apache.thrift.protocol.TType.STRUCT, edu.berkeley.sparrow.thrift.TUserGroupInfo.class)));
+      tmpMap.put(_Fields.WORK_SPEED, new org.apache.thrift.meta_data.FieldMetaData("workSpeed", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+          new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
       metaDataMap = Collections.unmodifiableMap(tmpMap);
       org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(launchTask_args.class, metaDataMap);
     }
@@ -275,12 +286,14 @@ public class BackendService {
     public launchTask_args(
       ByteBuffer message,
       edu.berkeley.sparrow.thrift.TFullTaskId taskId,
-      edu.berkeley.sparrow.thrift.TUserGroupInfo user)
+      edu.berkeley.sparrow.thrift.TUserGroupInfo user,
+      String workSpeed)
     {
       this();
       this.message = message;
       this.taskId = taskId;
       this.user = user;
+      this.workSpeed = workSpeed;
     }
 
     /**
@@ -297,6 +310,9 @@ public class BackendService {
       if (other.isSetUser()) {
         this.user = new edu.berkeley.sparrow.thrift.TUserGroupInfo(other.user);
       }
+      if (other.isSetWorkSpeed()) {
+        this.workSpeed = other.workSpeed;
+      }
     }
 
     public launchTask_args deepCopy() {
@@ -307,6 +323,7 @@ public class BackendService {
       this.message = null;
       this.taskId = null;
       this.user = null;
+      this.workSpeed = null;
     }
 
     public byte[] getMessage() {
@@ -391,6 +408,30 @@ public class BackendService {
       }
     }
 
+    public String getWorkSpeed() {
+      return this.workSpeed;
+    }
+
+    public launchTask_args setWorkSpeed(String workSpeed) {
+      this.workSpeed = workSpeed;
+      return this;
+    }
+
+    public void unsetWorkSpeed() {
+      this.workSpeed = null;
+    }
+
+    /** Returns true if field workSpeed is set (has been assigned a value) and false otherwise */
+    public boolean isSetWorkSpeed() {
+      return this.workSpeed != null;
+    }
+
+    public void setWorkSpeedIsSet(boolean value) {
+      if (!value) {
+        this.workSpeed = null;
+      }
+    }
+
     public void setFieldValue(_Fields field, Object value) {
       switch (field) {
       case MESSAGE:
@@ -417,6 +458,14 @@ public class BackendService {
         }
         break;
 
+      case WORK_SPEED:
+        if (value == null) {
+          unsetWorkSpeed();
+        } else {
+          setWorkSpeed((String)value);
+        }
+        break;
+
       }
     }
 
@@ -430,6 +479,9 @@ public class BackendService {
 
       case USER:
         return getUser();
+
+      case WORK_SPEED:
+        return getWorkSpeed();
 
       }
       throw new IllegalStateException();
@@ -448,6 +500,8 @@ public class BackendService {
         return isSetTaskId();
       case USER:
         return isSetUser();
+      case WORK_SPEED:
+        return isSetWorkSpeed();
       }
       throw new IllegalStateException();
     }
@@ -489,6 +543,15 @@ public class BackendService {
         if (!(this_present_user && that_present_user))
           return false;
         if (!this.user.equals(that.user))
+          return false;
+      }
+
+      boolean this_present_workSpeed = true && this.isSetWorkSpeed();
+      boolean that_present_workSpeed = true && that.isSetWorkSpeed();
+      if (this_present_workSpeed || that_present_workSpeed) {
+        if (!(this_present_workSpeed && that_present_workSpeed))
+          return false;
+        if (!this.workSpeed.equals(that.workSpeed))
           return false;
       }
 
@@ -538,6 +601,16 @@ public class BackendService {
           return lastComparison;
         }
       }
+      lastComparison = Boolean.valueOf(isSetWorkSpeed()).compareTo(typedOther.isSetWorkSpeed());
+      if (lastComparison != 0) {
+        return lastComparison;
+      }
+      if (isSetWorkSpeed()) {
+        lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.workSpeed, typedOther.workSpeed);
+        if (lastComparison != 0) {
+          return lastComparison;
+        }
+      }
       return 0;
     }
 
@@ -579,6 +652,14 @@ public class BackendService {
         sb.append("null");
       } else {
         sb.append(this.user);
+      }
+      first = false;
+      if (!first) sb.append(", ");
+      sb.append("workSpeed:");
+      if (this.workSpeed == null) {
+        sb.append("null");
+      } else {
+        sb.append(this.workSpeed);
       }
       first = false;
       sb.append(")");
@@ -649,6 +730,14 @@ public class BackendService {
                 org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
               }
               break;
+            case 4: // WORK_SPEED
+              if (schemeField.type == org.apache.thrift.protocol.TType.STRING) {
+                struct.workSpeed = iprot.readString();
+                struct.setWorkSpeedIsSet(true);
+              } else { 
+                org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
+              }
+              break;
             default:
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
           }
@@ -679,6 +768,11 @@ public class BackendService {
           struct.user.write(oprot);
           oprot.writeFieldEnd();
         }
+        if (struct.workSpeed != null) {
+          oprot.writeFieldBegin(WORK_SPEED_FIELD_DESC);
+          oprot.writeString(struct.workSpeed);
+          oprot.writeFieldEnd();
+        }
         oprot.writeFieldStop();
         oprot.writeStructEnd();
       }
@@ -706,7 +800,10 @@ public class BackendService {
         if (struct.isSetUser()) {
           optionals.set(2);
         }
-        oprot.writeBitSet(optionals, 3);
+        if (struct.isSetWorkSpeed()) {
+          optionals.set(3);
+        }
+        oprot.writeBitSet(optionals, 4);
         if (struct.isSetMessage()) {
           oprot.writeBinary(struct.message);
         }
@@ -716,12 +813,15 @@ public class BackendService {
         if (struct.isSetUser()) {
           struct.user.write(oprot);
         }
+        if (struct.isSetWorkSpeed()) {
+          oprot.writeString(struct.workSpeed);
+        }
       }
 
       @Override
       public void read(org.apache.thrift.protocol.TProtocol prot, launchTask_args struct) throws org.apache.thrift.TException {
         TTupleProtocol iprot = (TTupleProtocol) prot;
-        BitSet incoming = iprot.readBitSet(3);
+        BitSet incoming = iprot.readBitSet(4);
         if (incoming.get(0)) {
           struct.message = iprot.readBinary();
           struct.setMessageIsSet(true);
@@ -735,6 +835,10 @@ public class BackendService {
           struct.user = new edu.berkeley.sparrow.thrift.TUserGroupInfo();
           struct.user.read(iprot);
           struct.setUserIsSet(true);
+        }
+        if (incoming.get(3)) {
+          struct.workSpeed = iprot.readString();
+          struct.setWorkSpeedIsSet(true);
         }
       }
     }
