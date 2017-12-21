@@ -208,16 +208,16 @@ public class InternalService {
       return processMap;
     }
 
-    private static class enqueueTaskReservations<I extends Iface> extends org.apache.thrift.ProcessFunction<I, enqueueTaskReservations_args> {
+    public static class enqueueTaskReservations<I extends Iface> extends org.apache.thrift.ProcessFunction<I, enqueueTaskReservations_args> {
       public enqueueTaskReservations() {
         super("enqueueTaskReservations");
       }
 
-      protected enqueueTaskReservations_args getEmptyArgsInstance() {
+      public enqueueTaskReservations_args getEmptyArgsInstance() {
         return new enqueueTaskReservations_args();
       }
 
-      protected enqueueTaskReservations_result getResult(I iface, enqueueTaskReservations_args args) throws org.apache.thrift.TException {
+      public enqueueTaskReservations_result getResult(I iface, enqueueTaskReservations_args args) throws org.apache.thrift.TException {
         enqueueTaskReservations_result result = new enqueueTaskReservations_result();
         result.success = iface.enqueueTaskReservations(args.request);
         result.setSuccessIsSet(true);
@@ -225,16 +225,16 @@ public class InternalService {
       }
     }
 
-    private static class cancelTaskReservations<I extends Iface> extends org.apache.thrift.ProcessFunction<I, cancelTaskReservations_args> {
+    public static class cancelTaskReservations<I extends Iface> extends org.apache.thrift.ProcessFunction<I, cancelTaskReservations_args> {
       public cancelTaskReservations() {
         super("cancelTaskReservations");
       }
 
-      protected cancelTaskReservations_args getEmptyArgsInstance() {
+      public cancelTaskReservations_args getEmptyArgsInstance() {
         return new cancelTaskReservations_args();
       }
 
-      protected cancelTaskReservations_result getResult(I iface, cancelTaskReservations_args args) throws org.apache.thrift.TException {
+      public cancelTaskReservations_result getResult(I iface, cancelTaskReservations_args args) throws org.apache.thrift.TException {
         cancelTaskReservations_result result = new cancelTaskReservations_result();
         iface.cancelTaskReservations(args.request);
         return result;
@@ -856,8 +856,6 @@ public class InternalService {
 
     private void readObject(java.io.ObjectInputStream in) throws java.io.IOException, ClassNotFoundException {
       try {
-        // it doesn't seem like you should have to do this, but java serialization is wacky, and doesn't call the default constructor.
-        __isset_bit_vector = new BitSet(1);
         read(new org.apache.thrift.protocol.TCompactProtocol(new org.apache.thrift.transport.TIOStreamTransport(in)));
       } catch (org.apache.thrift.TException te) {
         throw new java.io.IOException(te.getMessage());

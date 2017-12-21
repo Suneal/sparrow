@@ -284,16 +284,16 @@ public class SchedulerService {
       return processMap;
     }
 
-    private static class registerFrontend<I extends Iface> extends org.apache.thrift.ProcessFunction<I, registerFrontend_args> {
+    public static class registerFrontend<I extends Iface> extends org.apache.thrift.ProcessFunction<I, registerFrontend_args> {
       public registerFrontend() {
         super("registerFrontend");
       }
 
-      protected registerFrontend_args getEmptyArgsInstance() {
+      public registerFrontend_args getEmptyArgsInstance() {
         return new registerFrontend_args();
       }
 
-      protected registerFrontend_result getResult(I iface, registerFrontend_args args) throws org.apache.thrift.TException {
+      public registerFrontend_result getResult(I iface, registerFrontend_args args) throws org.apache.thrift.TException {
         registerFrontend_result result = new registerFrontend_result();
         result.success = iface.registerFrontend(args.app, args.socketAddress);
         result.setSuccessIsSet(true);
@@ -301,16 +301,16 @@ public class SchedulerService {
       }
     }
 
-    private static class submitJob<I extends Iface> extends org.apache.thrift.ProcessFunction<I, submitJob_args> {
+    public static class submitJob<I extends Iface> extends org.apache.thrift.ProcessFunction<I, submitJob_args> {
       public submitJob() {
         super("submitJob");
       }
 
-      protected submitJob_args getEmptyArgsInstance() {
+      public submitJob_args getEmptyArgsInstance() {
         return new submitJob_args();
       }
 
-      protected submitJob_result getResult(I iface, submitJob_args args) throws org.apache.thrift.TException {
+      public submitJob_result getResult(I iface, submitJob_args args) throws org.apache.thrift.TException {
         submitJob_result result = new submitJob_result();
         try {
           iface.submitJob(args.req);
@@ -321,16 +321,16 @@ public class SchedulerService {
       }
     }
 
-    private static class sendFrontendMessage<I extends Iface> extends org.apache.thrift.ProcessFunction<I, sendFrontendMessage_args> {
+    public static class sendFrontendMessage<I extends Iface> extends org.apache.thrift.ProcessFunction<I, sendFrontendMessage_args> {
       public sendFrontendMessage() {
         super("sendFrontendMessage");
       }
 
-      protected sendFrontendMessage_args getEmptyArgsInstance() {
+      public sendFrontendMessage_args getEmptyArgsInstance() {
         return new sendFrontendMessage_args();
       }
 
-      protected sendFrontendMessage_result getResult(I iface, sendFrontendMessage_args args) throws org.apache.thrift.TException {
+      public sendFrontendMessage_result getResult(I iface, sendFrontendMessage_args args) throws org.apache.thrift.TException {
         sendFrontendMessage_result result = new sendFrontendMessage_result();
         iface.sendFrontendMessage(args.app, args.taskId, args.status, args.message);
         return result;
@@ -1050,8 +1050,6 @@ public class SchedulerService {
 
     private void readObject(java.io.ObjectInputStream in) throws java.io.IOException, ClassNotFoundException {
       try {
-        // it doesn't seem like you should have to do this, but java serialization is wacky, and doesn't call the default constructor.
-        __isset_bit_vector = new BitSet(1);
         read(new org.apache.thrift.protocol.TCompactProtocol(new org.apache.thrift.transport.TIOStreamTransport(in)));
       } catch (org.apache.thrift.TException te) {
         throw new java.io.IOException(te.getMessage());

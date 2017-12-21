@@ -156,16 +156,16 @@ public class BackendService {
       return processMap;
     }
 
-    private static class launchTask<I extends Iface> extends org.apache.thrift.ProcessFunction<I, launchTask_args> {
+    public static class launchTask<I extends Iface> extends org.apache.thrift.ProcessFunction<I, launchTask_args> {
       public launchTask() {
         super("launchTask");
       }
 
-      protected launchTask_args getEmptyArgsInstance() {
+      public launchTask_args getEmptyArgsInstance() {
         return new launchTask_args();
       }
 
-      protected launchTask_result getResult(I iface, launchTask_args args) throws org.apache.thrift.TException {
+      public launchTask_result getResult(I iface, launchTask_args args) throws org.apache.thrift.TException {
         launchTask_result result = new launchTask_result();
         iface.launchTask(args.message, args.taskId, args.user);
         return result;

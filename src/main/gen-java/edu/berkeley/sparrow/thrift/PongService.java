@@ -151,16 +151,16 @@ public class PongService {
       return processMap;
     }
 
-    private static class ping<I extends Iface> extends org.apache.thrift.ProcessFunction<I, ping_args> {
+    public static class ping<I extends Iface> extends org.apache.thrift.ProcessFunction<I, ping_args> {
       public ping() {
         super("ping");
       }
 
-      protected ping_args getEmptyArgsInstance() {
+      public ping_args getEmptyArgsInstance() {
         return new ping_args();
       }
 
-      protected ping_result getResult(I iface, ping_args args) throws org.apache.thrift.TException {
+      public ping_result getResult(I iface, ping_args args) throws org.apache.thrift.TException {
         ping_result result = new ping_result();
         result.success = iface.ping(args.data);
         return result;

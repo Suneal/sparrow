@@ -148,16 +148,16 @@ public class SchedulerStateStoreService {
       return processMap;
     }
 
-    private static class updateNodeState<I extends Iface> extends org.apache.thrift.ProcessFunction<I, updateNodeState_args> {
+    public static class updateNodeState<I extends Iface> extends org.apache.thrift.ProcessFunction<I, updateNodeState_args> {
       public updateNodeState() {
         super("updateNodeState");
       }
 
-      protected updateNodeState_args getEmptyArgsInstance() {
+      public updateNodeState_args getEmptyArgsInstance() {
         return new updateNodeState_args();
       }
 
-      protected updateNodeState_result getResult(I iface, updateNodeState_args args) throws org.apache.thrift.TException {
+      public updateNodeState_result getResult(I iface, updateNodeState_args args) throws org.apache.thrift.TException {
         updateNodeState_result result = new updateNodeState_result();
         iface.updateNodeState(args.snapshot);
         return result;

@@ -59,6 +59,7 @@ struct TTaskSpec {
   1: string taskId;
   2: TPlacementPreference preference;
   3: binary message;
+  4: string workSpeed;
 }
 
 struct TSchedulingRequest {
@@ -92,6 +93,7 @@ struct TTaskLaunchSpec {
 
   # Description of the task passed on to the application backend (opaque to Sparrow).
   2: binary message;
+  3: string workSpeed;
 }
 
 struct LoadSpec {

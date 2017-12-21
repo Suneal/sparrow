@@ -205,32 +205,32 @@ public class StateStoreService {
       return processMap;
     }
 
-    private static class registerScheduler<I extends Iface> extends org.apache.thrift.ProcessFunction<I, registerScheduler_args> {
+    public static class registerScheduler<I extends Iface> extends org.apache.thrift.ProcessFunction<I, registerScheduler_args> {
       public registerScheduler() {
         super("registerScheduler");
       }
 
-      protected registerScheduler_args getEmptyArgsInstance() {
+      public registerScheduler_args getEmptyArgsInstance() {
         return new registerScheduler_args();
       }
 
-      protected registerScheduler_result getResult(I iface, registerScheduler_args args) throws org.apache.thrift.TException {
+      public registerScheduler_result getResult(I iface, registerScheduler_args args) throws org.apache.thrift.TException {
         registerScheduler_result result = new registerScheduler_result();
         iface.registerScheduler(args.schedulerAddress);
         return result;
       }
     }
 
-    private static class registerNodeMonitor<I extends Iface> extends org.apache.thrift.ProcessFunction<I, registerNodeMonitor_args> {
+    public static class registerNodeMonitor<I extends Iface> extends org.apache.thrift.ProcessFunction<I, registerNodeMonitor_args> {
       public registerNodeMonitor() {
         super("registerNodeMonitor");
       }
 
-      protected registerNodeMonitor_args getEmptyArgsInstance() {
+      public registerNodeMonitor_args getEmptyArgsInstance() {
         return new registerNodeMonitor_args();
       }
 
-      protected registerNodeMonitor_result getResult(I iface, registerNodeMonitor_args args) throws org.apache.thrift.TException {
+      public registerNodeMonitor_result getResult(I iface, registerNodeMonitor_args args) throws org.apache.thrift.TException {
         registerNodeMonitor_result result = new registerNodeMonitor_result();
         iface.registerNodeMonitor(args.nodeMonitorAddress);
         return result;

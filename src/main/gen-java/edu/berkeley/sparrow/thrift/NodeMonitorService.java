@@ -281,16 +281,16 @@ public class NodeMonitorService {
       return processMap;
     }
 
-    private static class registerBackend<I extends Iface> extends org.apache.thrift.ProcessFunction<I, registerBackend_args> {
+    public static class registerBackend<I extends Iface> extends org.apache.thrift.ProcessFunction<I, registerBackend_args> {
       public registerBackend() {
         super("registerBackend");
       }
 
-      protected registerBackend_args getEmptyArgsInstance() {
+      public registerBackend_args getEmptyArgsInstance() {
         return new registerBackend_args();
       }
 
-      protected registerBackend_result getResult(I iface, registerBackend_args args) throws org.apache.thrift.TException {
+      public registerBackend_result getResult(I iface, registerBackend_args args) throws org.apache.thrift.TException {
         registerBackend_result result = new registerBackend_result();
         result.success = iface.registerBackend(args.app, args.listenSocket);
         result.setSuccessIsSet(true);
@@ -298,32 +298,32 @@ public class NodeMonitorService {
       }
     }
 
-    private static class tasksFinished<I extends Iface> extends org.apache.thrift.ProcessFunction<I, tasksFinished_args> {
+    public static class tasksFinished<I extends Iface> extends org.apache.thrift.ProcessFunction<I, tasksFinished_args> {
       public tasksFinished() {
         super("tasksFinished");
       }
 
-      protected tasksFinished_args getEmptyArgsInstance() {
+      public tasksFinished_args getEmptyArgsInstance() {
         return new tasksFinished_args();
       }
 
-      protected tasksFinished_result getResult(I iface, tasksFinished_args args) throws org.apache.thrift.TException {
+      public tasksFinished_result getResult(I iface, tasksFinished_args args) throws org.apache.thrift.TException {
         tasksFinished_result result = new tasksFinished_result();
         iface.tasksFinished(args.tasks);
         return result;
       }
     }
 
-    private static class sendFrontendMessage<I extends Iface> extends org.apache.thrift.ProcessFunction<I, sendFrontendMessage_args> {
+    public static class sendFrontendMessage<I extends Iface> extends org.apache.thrift.ProcessFunction<I, sendFrontendMessage_args> {
       public sendFrontendMessage() {
         super("sendFrontendMessage");
       }
 
-      protected sendFrontendMessage_args getEmptyArgsInstance() {
+      public sendFrontendMessage_args getEmptyArgsInstance() {
         return new sendFrontendMessage_args();
       }
 
-      protected sendFrontendMessage_result getResult(I iface, sendFrontendMessage_args args) throws org.apache.thrift.TException {
+      public sendFrontendMessage_result getResult(I iface, sendFrontendMessage_args args) throws org.apache.thrift.TException {
         sendFrontendMessage_result result = new sendFrontendMessage_result();
         iface.sendFrontendMessage(args.app, args.taskId, args.status, args.message);
         return result;
@@ -1043,8 +1043,6 @@ public class NodeMonitorService {
 
     private void readObject(java.io.ObjectInputStream in) throws java.io.IOException, ClassNotFoundException {
       try {
-        // it doesn't seem like you should have to do this, but java serialization is wacky, and doesn't call the default constructor.
-        __isset_bit_vector = new BitSet(1);
         read(new org.apache.thrift.protocol.TCompactProtocol(new org.apache.thrift.transport.TIOStreamTransport(in)));
       } catch (org.apache.thrift.TException te) {
         throw new java.io.IOException(te.getMessage());

@@ -156,16 +156,16 @@ public class FrontendService {
       return processMap;
     }
 
-    private static class frontendMessage<I extends Iface> extends org.apache.thrift.ProcessFunction<I, frontendMessage_args> {
+    public static class frontendMessage<I extends Iface> extends org.apache.thrift.ProcessFunction<I, frontendMessage_args> {
       public frontendMessage() {
         super("frontendMessage");
       }
 
-      protected frontendMessage_args getEmptyArgsInstance() {
+      public frontendMessage_args getEmptyArgsInstance() {
         return new frontendMessage_args();
       }
 
-      protected frontendMessage_result getResult(I iface, frontendMessage_args args) throws org.apache.thrift.TException {
+      public frontendMessage_result getResult(I iface, frontendMessage_args args) throws org.apache.thrift.TException {
         frontendMessage_result result = new frontendMessage_result();
         iface.frontendMessage(args.taskId, args.status, args.message);
         return result;

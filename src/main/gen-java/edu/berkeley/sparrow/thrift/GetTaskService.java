@@ -155,16 +155,16 @@ public class GetTaskService {
       return processMap;
     }
 
-    private static class getTask<I extends Iface> extends org.apache.thrift.ProcessFunction<I, getTask_args> {
+    public static class getTask<I extends Iface> extends org.apache.thrift.ProcessFunction<I, getTask_args> {
       public getTask() {
         super("getTask");
       }
 
-      protected getTask_args getEmptyArgsInstance() {
+      public getTask_args getEmptyArgsInstance() {
         return new getTask_args();
       }
 
-      protected getTask_result getResult(I iface, getTask_args args) throws org.apache.thrift.TException {
+      public getTask_result getResult(I iface, getTask_args args) throws org.apache.thrift.TException {
         getTask_result result = new getTask_result();
         result.success = iface.getTask(args.requestId, args.nodeMonitorAddress);
         return result;
