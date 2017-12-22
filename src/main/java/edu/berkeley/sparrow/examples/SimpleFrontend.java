@@ -222,7 +222,7 @@ public class SimpleFrontend implements FrontendService.Iface {
       double arrivalRate = load*serviceRate;
       long arrivalPeriodMillis = (long)(tasksPerJob/arrivalRate);
 
-      TOTAL_NO_OF_TASKS= (int) ((experimentDurationS/ arrivalPeriodMillis)  * tasksPerJob+ 1);
+      TOTAL_NO_OF_TASKS= (int) ((experimentDurationS*1000/ arrivalPeriodMillis)  * tasksPerJob+ 1);
 
       //Generate Exponential Data
       int median_task_duration = taskDurationMillis;
