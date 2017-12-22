@@ -59,6 +59,9 @@ public class SimpleFrontend implements FrontendService.Iface {
   public static final String TASKS_PER_JOB = "tasks_per_job";
   public static final int DEFAULT_TASKS_PER_JOB = 1;
 
+  public static final String LOAD = "load";
+  public static final double DEFAULT_LOAD = 0.1;
+
   /** Duration of one task, in milliseconds */
   public static final String TASK_DURATION_MILLIS = "task_duration_millis";
   public static final int DEFAULT_TASK_DURATION_MILLIS = 100;
@@ -161,7 +164,7 @@ public class SimpleFrontend implements FrontendService.Iface {
         throw new RuntimeException("Missing configuration node monitor list");
       }
       Set<InetSocketAddress> backends =ConfigUtil.parseBackends(conf);
-      TOTAL_WORKERS = backends.size();
+      TOTAL_WORKERS = backends.size();;
 
       //2 is the exponent for Zipf's Distribution
       int[] worker_speeds = unidenticalWorkSpeeds(backends.size(),2);
@@ -178,7 +181,7 @@ public class SimpleFrontend implements FrontendService.Iface {
       for (int i= 0; i< new_worker_speeds.length; i++){
         final_worker_speeds[i] = ((new_worker_speeds[i] - minValue)/
                 (maxValue - minValue))* (upper_bound - lower_bound)+ lower_bound;
-
+        //System.out.println("workerspeed"+ final_worker_speeds[i]);
       }
 
       int i = 0;
@@ -187,14 +190,27 @@ public class SimpleFrontend implements FrontendService.Iface {
         i++;
       }
 
-      int arrivalPeriodMillis = conf.getInt(JOB_ARRIVAL_PERIOD_MILLIS,
-          DEFAULT_JOB_ARRIVAL_PERIOD_MILLIS);
+      double load = conf.getDouble(LOAD,DEFAULT_LOAD);
+
+
       int experimentDurationS = conf.getInt(EXPERIMENT_S, DEFAULT_EXPERIMENT_S);
-      LOG.debug("Using arrival period of " + arrivalPeriodMillis +
-          " milliseconds and running experiment for " + experimentDurationS + " seconds.");
-      int tasksPerJob = conf.getInt(TASKS_PER_JOB, DEFAULT_TASKS_PER_JOB);
       int taskDurationMillis = conf.getInt(TASK_DURATION_MILLIS, DEFAULT_TASK_DURATION_MILLIS);
 
+      int tasksPerJob = conf.getInt(TASKS_PER_JOB, DEFAULT_TASKS_PER_JOB);
+      double serviceRate = 0;
+      for(int k = 0; k < final_worker_speeds.length; k++){
+        serviceRate += final_worker_speeds[k]/taskDurationMillis;
+      }
+
+      double arrivalRate = load*serviceRate;
+      long arrivalPeriodMillis = (long)(tasksPerJob/arrivalRate);
+
+      LOG.debug("AP: " + arrivalPeriodMillis + "; AR: " +arrivalRate + "; TD: "+ taskDurationMillis + "; SR: " + serviceRate +
+              "; W:  " + final_worker_speeds.length);
+
+
+      LOG.debug("Using arrival period of " + arrivalPeriodMillis +
+              " milliseconds and running experiment for " + experimentDurationS + " seconds.");
       int schedulerPort = conf.getInt(SCHEDULER_PORT,
           SchedulerThrift.DEFAULT_SCHEDULER_THRIFT_PORT);
       String schedulerHost = conf.getString(SCHEDULER_HOST, DEFAULT_SCHEDULER_HOST);
