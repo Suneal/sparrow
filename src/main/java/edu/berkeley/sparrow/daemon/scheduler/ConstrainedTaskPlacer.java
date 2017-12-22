@@ -134,7 +134,7 @@ public class ConstrainedTaskPlacer implements TaskPlacer {
       List<InetSocketAddress> preferredNodes = taskPreferencesToSocketList(task, addrToSocket);
 
       TTaskLaunchSpec taskLaunchSpec = new TTaskLaunchSpec(task.getTaskId(),
-                                                           task.bufferForMessage());
+                                                           task.bufferForMessage(),task.getWorkSpeed());
 
       int numEnqueuedNodes = 0;
       for (InetSocketAddress addr : preferredNodes) {
@@ -251,7 +251,7 @@ public class ConstrainedTaskPlacer implements TaskPlacer {
 
     for (TTaskSpec task : unconstrainedTasks) {
       TTaskLaunchSpec taskLaunchSpec = new TTaskLaunchSpec(
-          task.getTaskId(), task.bufferForMessage());
+          task.getTaskId(), task.bufferForMessage(),task.getWorkSpeed());
       unlaunchedUnconstrainedTasks.add(taskLaunchSpec);
     }
 

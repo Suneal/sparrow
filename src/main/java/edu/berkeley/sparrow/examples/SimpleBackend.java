@@ -108,15 +108,17 @@ public class SimpleBackend implements BackendService.Iface {
   private class TaskRunnable implements Runnable {
     private int taskDurationMillis;
     private TFullTaskId taskId;
-
-    public TaskRunnable(String requestId, TFullTaskId taskId, ByteBuffer message) {
+    private String workSpeed;
+    public TaskRunnable(String requestId, TFullTaskId taskId, ByteBuffer message, String workSpeed) {
       this.taskDurationMillis = message.getInt();
       this.taskId = taskId;
+      this.workSpeed = workSpeed;
     }
 
     @Override
     public void run() {
       long startTime = System.currentTimeMillis();
+      System.out.println("Workspeed" + workSpeed);
       try {
         Thread.sleep(taskDurationMillis);
       } catch (InterruptedException e) {
@@ -150,13 +152,12 @@ public class SimpleBackend implements BackendService.Iface {
     new Thread(new TasksFinishedRpcRunnable()).start();
   }
 
-  @Override
   public void launchTask(ByteBuffer message, TFullTaskId taskId,
-      TUserGroupInfo user) throws TException {
+      TUserGroupInfo user, String workSpeed) throws TException {
     LOG.info("Submitting task " + taskId.getTaskId() + " at " + System.currentTimeMillis());
 
     executor.submit(new TaskRunnable(
-        taskId.requestId, taskId, message));
+        taskId.requestId, taskId, message,workSpeed));
   }
 
   public static void main(String[] args) throws IOException, TException {

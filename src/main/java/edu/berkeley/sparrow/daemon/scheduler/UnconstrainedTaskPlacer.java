@@ -91,7 +91,7 @@ public class UnconstrainedTaskPlacer implements TaskPlacer {
 
     for (TTaskSpec task : schedulingRequest.getTasks()) {
       TTaskLaunchSpec taskLaunchSpec = new TTaskLaunchSpec(task.getTaskId(),
-                                                           task.bufferForMessage());
+                                                           task.bufferForMessage(), task.getWorkSpeed());
       unlaunchedTasks.add(taskLaunchSpec);
     }
 

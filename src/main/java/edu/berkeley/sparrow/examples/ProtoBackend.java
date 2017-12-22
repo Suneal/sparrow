@@ -104,6 +104,16 @@ public class ProtoBackend implements BackendService.Iface {
    */
   private final BlockingQueue<TFullTaskId> finishedTasks = new LinkedBlockingQueue<TFullTaskId>();
 
+  @Override
+  public void launchTask(ByteBuffer message, TFullTaskId taskId, TUserGroupInfo user, String workSpeed) throws TException {
+
+    LOG.info("Submitting task " + taskId.getTaskId() + " at " + System.currentTimeMillis());
+
+    // Note we ignore user here
+    executor.submit(new TaskRunnable(
+            taskId.requestId, taskId, message));
+  }
+
   /**
    * Thread that sends taskFinished() RPCs to the node monitor.
    *
@@ -252,15 +262,7 @@ public class ProtoBackend implements BackendService.Iface {
     new Thread(new TasksFinishedRpcRunnable()).start();
   }
 
-  @Override
-  public void launchTask(ByteBuffer message, TFullTaskId taskId,
-      TUserGroupInfo user) throws TException {
-    LOG.info("Submitting task " + taskId.getTaskId() + " at " + System.currentTimeMillis());
 
-    // Note we ignore user here
-    executor.submit(new TaskRunnable(
-        taskId.requestId, taskId, message));
-  }
 
   public static void main(String[] args) throws IOException, TException {
     OptionParser parser = new OptionParser();

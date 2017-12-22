@@ -163,7 +163,7 @@ public class TaskLauncherService {
       TFullTaskId taskId = new TFullTaskId(task.taskSpec.getTaskId(), task.requestId,
           task.appId, schedulerHostPort);
       try {
-        backendClient.launchTask(task.taskSpec.bufferForMessage(), taskId, task.user);
+        backendClient.launchTask(task.taskSpec.bufferForMessage(), taskId, task.user, task.taskSpec.workSpeed);
       } catch (TException e) {
         LOG.error("Unable to launch task on backend " + task.appBackendAddress + ":" + e);
       }
