@@ -112,7 +112,7 @@ public class TestConstrainedTaskPlacer {
         placementPreference.addToNodes(preferredNodesList.get(j).getAddress().getHostAddress());
       }
       String id = "test task " + i;
-      tasks.add(new TTaskSpec(id, placementPreference, message));
+      tasks.add(new TTaskSpec(id, placementPreference, message, "1.9"));
     }
 
     TSchedulingRequest schedulingRequest = new TSchedulingRequest(APP_ID, tasks, user);
@@ -144,7 +144,7 @@ public class TestConstrainedTaskPlacer {
     for (InetSocketAddress address : preferredNodes) {
       placementPreference.addToNodes(address.getAddress().getHostAddress());
     }
-    TTaskSpec task = new TTaskSpec("test task", placementPreference, message);
+    TTaskSpec task = new TTaskSpec("test task", placementPreference, message, "1");
 
     // Create the scheduling request.
     List<TTaskSpec> tasks = new ArrayList<TTaskSpec>();
@@ -284,11 +284,11 @@ public class TestConstrainedTaskPlacer {
       }
       String id = "constrained test task " + i;
       constrainedTaskIds.add(id);
-      tasks.add(new TTaskSpec(id, placementPreference, message));
+      tasks.add(new TTaskSpec(id, placementPreference, message, "1"));
     }
 
     String unconstrainedTaskId = "unconstrained test task";
-    tasks.add(new TTaskSpec(unconstrainedTaskId, null, message));
+    tasks.add(new TTaskSpec(unconstrainedTaskId, null, message, "1"));
 
     TUserGroupInfo user = new TUserGroupInfo(USER, GROUP, PRIORITY);
     TSchedulingRequest schedulingRequest = new TSchedulingRequest(APP_ID, tasks, user);

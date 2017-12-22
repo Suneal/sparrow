@@ -67,7 +67,7 @@ public class TestUnconstrainedTaskPlacer {
     for (int i = 0; i < NUM_TASKS; ++i) {
       String id = "test task " + i;
       taskIds.add(id);
-      tasks.add(new TTaskSpec(id, placementPreference, message));
+      tasks.add(new TTaskSpec(id, placementPreference, message, "1"));
     }
 
     backendNodes = Lists.newArrayList();
@@ -89,7 +89,7 @@ public class TestUnconstrainedTaskPlacer {
     while (tasks.size() < NUM_TASKS) {
       String id = "test task " + tasks.size();
       taskIds.add(id);
-      tasks.add(new TTaskSpec(id, placementPreference, message));
+      tasks.add(new TTaskSpec(id, placementPreference, message, "1"));
     }
 
     TSchedulingRequest schedulingRequest = new TSchedulingRequest(APP_ID, tasks, user);
