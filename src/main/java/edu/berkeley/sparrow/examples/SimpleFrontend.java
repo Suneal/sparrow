@@ -18,16 +18,19 @@ package edu.berkeley.sparrow.examples;
 
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
+import edu.berkeley.sparrow.daemon.SparrowConf;
+import edu.berkeley.sparrow.daemon.util.ConfigUtil;
+import edu.berkeley.sparrow.daemon.util.MinMax;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.PropertiesConfiguration;
+import org.apache.commons.math3.distribution.ZipfDistribution;
 import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
@@ -76,14 +79,34 @@ public class SimpleFrontend implements FrontendService.Iface {
 
   private SparrowFrontendClient client;
 
+  public static int[] unidenticalWorkSpeeds(int no_of_elements, int exponent){
+    ZipfDistribution zipfDistribution = new ZipfDistribution(no_of_elements,exponent);
+    int[] worker_speeds = zipfDistribution.sample(no_of_elements);
+    int max = MinMax.getMaxValue(worker_speeds);
+    int min = MinMax.getMinValue(worker_speeds);
+    if(max == min){
+      worker_speeds= unidenticalWorkSpeeds(no_of_elements, exponent);
+    }
+    return  worker_speeds;
+  }
+
+
+  public static  int RATIO_BETWEEN_MAX_MIN = 100;
+  public static int TOTAL_WORKERS = 10;
+  public static  double upper_bound = 1.0;
+  public static  double lower_bound = upper_bound/RATIO_BETWEEN_MAX_MIN;
+  public static Map<String, String> workSpeedMap = new HashMap<String, String>();
+
+
   /** A runnable which Spawns a new thread to launch a scheduling request. */
   private class JobLaunchRunnable implements Runnable {
     private int tasksPerJob;
     private int taskDurationMillis;
-
-    public JobLaunchRunnable(int tasksPerJob, int taskDurationMillis) {
+    private String workerSpeed;
+    public JobLaunchRunnable(int tasksPerJob, int taskDurationMillis, String workerSpeed) {
       this.tasksPerJob = tasksPerJob;
       this.taskDurationMillis = taskDurationMillis;
+      this.workerSpeed = workerSpeed;
     }
 
     @Override
@@ -97,7 +120,7 @@ public class SimpleFrontend implements FrontendService.Iface {
         TTaskSpec spec = new TTaskSpec();
         spec.setTaskId(Integer.toString(taskId));
         spec.setMessage(message.array());
-        spec.setWorkSpeed("Yayayayayayayayay");
+        spec.setWorkSpeed(workerSpeed);
         tasks.add(spec);
       }
       long start = System.currentTimeMillis();
@@ -134,6 +157,36 @@ public class SimpleFrontend implements FrontendService.Iface {
         conf = new PropertiesConfiguration(configFile);
       }
 
+      if (!conf.containsKey(SparrowConf.STATIC_NODE_MONITORS)) {
+        throw new RuntimeException("Missing configuration node monitor list");
+      }
+      Set<InetSocketAddress> backends =ConfigUtil.parseBackends(conf);
+      TOTAL_WORKERS = backends.size();
+
+      //2 is the exponent for Zipf's Distribution
+      int[] worker_speeds = unidenticalWorkSpeeds(backends.size(),2);
+
+      double[] new_worker_speeds =  new double[TOTAL_WORKERS];
+      for (int i= 0; i< worker_speeds.length; i++){
+        new_worker_speeds[i] = (double) 1.0/worker_speeds[i];
+      }
+
+      double minValue = MinMax.getMinValue(new_worker_speeds);
+      double maxValue = MinMax.getMaxValue(new_worker_speeds);
+
+      double[] final_worker_speeds = new double[TOTAL_WORKERS];
+      for (int i= 0; i< new_worker_speeds.length; i++){
+        final_worker_speeds[i] = ((new_worker_speeds[i] - minValue)/
+                (maxValue - minValue))* (upper_bound - lower_bound)+ lower_bound;
+
+      }
+
+      int i = 0;
+      for (String node: conf.getStringArray(SparrowConf.STATIC_NODE_MONITORS)) {
+        workSpeedMap.put(node,String.valueOf(final_worker_speeds[i]));
+        i++;
+      }
+
       int arrivalPeriodMillis = conf.getInt(JOB_ARRIVAL_PERIOD_MILLIS,
           DEFAULT_JOB_ARRIVAL_PERIOD_MILLIS);
       int experimentDurationS = conf.getInt(EXPERIMENT_S, DEFAULT_EXPERIMENT_S);
@@ -148,7 +201,7 @@ public class SimpleFrontend implements FrontendService.Iface {
       client = new SparrowFrontendClient();
       client.initialize(new InetSocketAddress(schedulerHost, schedulerPort), APPLICATION_ID, this);
 
-      JobLaunchRunnable runnable = new JobLaunchRunnable(tasksPerJob, taskDurationMillis);
+      JobLaunchRunnable runnable = new JobLaunchRunnable(tasksPerJob, taskDurationMillis, workSpeedMap.toString());
       ScheduledThreadPoolExecutor taskLauncher = new ScheduledThreadPoolExecutor(1);
       taskLauncher.scheduleAtFixedRate(runnable, 0, arrivalPeriodMillis, TimeUnit.MILLISECONDS);
 
