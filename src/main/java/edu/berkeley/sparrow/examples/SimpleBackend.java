@@ -56,7 +56,7 @@ public class SimpleBackend implements BackendService.Iface {
    * Each task is launched in its own thread from a thread pool with WORKER_THREADS threads,
    * so this should be set equal to the maximum number of tasks that can be running on a worker.
    */
-  private static final int WORKER_THREADS = 16;
+  private static final int WORKER_THREADS = 1;
   private static final String APP_ID = "sleepApp";
 
   /** Configuration parameters to specify where the node monitor is running. */
@@ -106,11 +106,14 @@ public class SimpleBackend implements BackendService.Iface {
    * the NodeMonitor when it launches and again when it finishes.
    */
   private class TaskRunnable implements Runnable {
-    private int taskDurationMillis;
+    private double taskDuration;
     private TFullTaskId taskId;
     private String workSpeed;
+    private long taskStartTime;
+
     public TaskRunnable(String requestId, TFullTaskId taskId, ByteBuffer message, String workSpeed) {
-      this.taskDurationMillis = message.getInt();
+      this.taskStartTime= message.getLong();
+      this.taskDuration=message.getDouble();
       this.taskId = taskId;
       this.workSpeed = workSpeed;
     }
@@ -119,7 +122,8 @@ public class SimpleBackend implements BackendService.Iface {
     public void run() {
       long startTime = System.currentTimeMillis();
       try {
-        Thread.sleep(taskDurationMillis/Integer.valueOf(workSpeed));
+        //Converted Double to Long.
+        Thread.sleep((long)taskDuration/Integer.valueOf(workSpeed));
       } catch (InterruptedException e) {
         LOG.error("Interrupted while sleeping: " + e.getMessage());
       }

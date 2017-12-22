@@ -55,9 +55,14 @@ public class SimpleFrontend implements FrontendService.Iface {
   public static final String JOB_ARRIVAL_PERIOD_MILLIS = "job_arrival_period_millis";
   public static final int DEFAULT_JOB_ARRIVAL_PERIOD_MILLIS = 100;
 
+
+
   /** Number of tasks per job. */
   public static final String TASKS_PER_JOB = "tasks_per_job";
   public static final int DEFAULT_TASKS_PER_JOB = 1;
+
+  public static int TOTAL_NO_OF_TASKS= (DEFAULT_EXPERIMENT_S / DEFAULT_JOB_ARRIVAL_PERIOD_MILLIS)  * DEFAULT_TASKS_PER_JOB + 1;
+
 
   public static final String LOAD = "load";
   public static final double DEFAULT_LOAD = 0.1;
@@ -82,6 +87,13 @@ public class SimpleFrontend implements FrontendService.Iface {
 
   private SparrowFrontendClient client;
 
+  public static Random random = new Random();
+
+  public static double getNext(double lambda) {
+    return Math.log(1-random.nextDouble())/(-lambda);
+   }
+  static ArrayList<Double> taskDurations = new ArrayList<Double>();
+
   public static int[] unidenticalWorkSpeeds(int no_of_elements, int exponent){
     ZipfDistribution zipfDistribution = new ZipfDistribution(no_of_elements,exponent);
     int[] worker_speeds = zipfDistribution.sample(no_of_elements);
@@ -104,19 +116,23 @@ public class SimpleFrontend implements FrontendService.Iface {
   /** A runnable which Spawns a new thread to launch a scheduling request. */
   private class JobLaunchRunnable implements Runnable {
     private int tasksPerJob;
-    private int taskDurationMillis;
     private String workerSpeed;
-    public JobLaunchRunnable(int tasksPerJob, int taskDurationMillis, String workerSpeed) {
+    private ArrayList<Double> taskDurations;
+    private int i;
+    public JobLaunchRunnable(int tasksPerJob, ArrayList<Double> taskDurations,String workerSpeed  ) {
       this.tasksPerJob = tasksPerJob;
-      this.taskDurationMillis = taskDurationMillis;
       this.workerSpeed = workerSpeed;
+      this.taskDurations = taskDurations;
+      this.i = 0; //index
     }
 
     @Override
     public void run() {
       // Generate tasks in the format expected by Sparrow. First, pack task parameters.
-      ByteBuffer message = ByteBuffer.allocate(4);
-      message.putInt(taskDurationMillis);
+      ByteBuffer message = ByteBuffer.allocate(16);
+      message.putLong(System.currentTimeMillis());
+      message.putDouble(taskDurations.get(i));
+      i++;
 
       List<TTaskSpec> tasks = new ArrayList<TTaskSpec>();
       for (int taskId = 0; taskId < tasksPerJob; taskId++) {
@@ -196,6 +212,7 @@ public class SimpleFrontend implements FrontendService.Iface {
       int experimentDurationS = conf.getInt(EXPERIMENT_S, DEFAULT_EXPERIMENT_S);
       int taskDurationMillis = conf.getInt(TASK_DURATION_MILLIS, DEFAULT_TASK_DURATION_MILLIS);
 
+
       int tasksPerJob = conf.getInt(TASKS_PER_JOB, DEFAULT_TASKS_PER_JOB);
       double serviceRate = 0;
       for(int k = 0; k < final_worker_speeds.length; k++){
@@ -204,6 +221,16 @@ public class SimpleFrontend implements FrontendService.Iface {
 
       double arrivalRate = load*serviceRate;
       long arrivalPeriodMillis = (long)(tasksPerJob/arrivalRate);
+
+      TOTAL_NO_OF_TASKS= (int) ((experimentDurationS/ arrivalPeriodMillis)  * tasksPerJob+ 1);
+
+      //Generate Exponential Data
+      int median_task_duration = taskDurationMillis;
+      double lambda = 1.0/median_task_duration;
+      for (int l = 0; l < TOTAL_NO_OF_TASKS; l++){
+        taskDurations.add(getNext(lambda));
+      }
+
 
       LOG.debug("AP: " + arrivalPeriodMillis + "; AR: " +arrivalRate + "; TD: "+ taskDurationMillis + "; SR: " + serviceRate +
               "; W:  " + final_worker_speeds.length);
@@ -217,7 +244,7 @@ public class SimpleFrontend implements FrontendService.Iface {
       client = new SparrowFrontendClient();
       client.initialize(new InetSocketAddress(schedulerHost, schedulerPort), APPLICATION_ID, this);
 
-      JobLaunchRunnable runnable = new JobLaunchRunnable(tasksPerJob, taskDurationMillis, workSpeedMap.toString());
+      JobLaunchRunnable runnable = new JobLaunchRunnable(tasksPerJob, taskDurations, workSpeedMap.toString());
       ScheduledThreadPoolExecutor taskLauncher = new ScheduledThreadPoolExecutor(1);
       taskLauncher.scheduleAtFixedRate(runnable, 0, arrivalPeriodMillis, TimeUnit.MILLISECONDS);
 

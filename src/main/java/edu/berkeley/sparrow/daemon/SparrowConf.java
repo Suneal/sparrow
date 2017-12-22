@@ -58,7 +58,7 @@ public class SparrowConf {
   public final static int DEFAULT_SYSTEM_MEMORY = 1024;
 
   public final static String SYSTEM_CPUS = "system.cpus";
-  public final static int DEFAULT_SYSTEM_CPUS = 4;
+  public final static int DEFAULT_SYSTEM_CPUS = 1;
 
   // Values: "standalone", "configbased." Only "configbased" works currently.
   public final static String DEPLYOMENT_MODE = "deployment.mode";
@@ -90,4 +90,5 @@ public class SparrowConf {
   
   public final static String SPREAD_EVENLY_TASK_SET_SIZE = "spread_evenly_task_set_size";
   public final static int DEFAULT_SPREAD_EVENLY_TASK_SET_SIZE = 1;
+
 }
