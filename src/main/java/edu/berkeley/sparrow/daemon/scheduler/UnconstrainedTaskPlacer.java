@@ -16,16 +16,12 @@
 
 package edu.berkeley.sparrow.daemon.scheduler;
 
+import java.io.StringReader;
 import java.net.InetSocketAddress;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
+import org.apache.commons.math3.distribution.UniformRealDistribution;
+import org.apache.commons.math3.util.MathUtils;
 import org.apache.log4j.Logger;
 
 import com.google.common.collect.Lists;
@@ -71,6 +67,42 @@ public class UnconstrainedTaskPlacer implements TaskPlacer {
     cancelled = false;
   }
 
+
+  public static double[] pssimplmentation(String workerSpeedMap){
+    Properties props = new Properties();
+    ArrayList<String> nodeList = new ArrayList<String>();
+    ArrayList<Double> workerSpeedList= new ArrayList<Double>();
+    for (Map.Entry<Object, Object> e : props.entrySet()) {
+      nodeList.add((String) e.getKey());
+      workerSpeedList.add(Double.valueOf((String)e.getValue()));
+    }
+
+    double sum = 0;
+    for(double d : workerSpeedList)
+      sum += d;
+
+    double[] cdf_worker_speed = new double[workerSpeedList.size()];
+    double cdf = 0;
+    int j = 0;
+    for (double d: workerSpeedList){
+      d = d/sum;
+      cdf= cdf+ d;
+      cdf_worker_speed[j] = cdf;
+      j++;
+    }
+    return cdf_worker_speed;
+  }
+
+  public static int getUniqueReservations(double[] cdf_worker_speed, ArrayList<Integer> workerIndex){
+    UniformRealDistribution uniformRealDistribution = new UniformRealDistribution();
+    int workerIndexReservation= Math.abs(java.util.Arrays.binarySearch(cdf_worker_speed, uniformRealDistribution.sample()));
+    //Maybe this recursive function isn't always necessary. //TODO comeback and fix it
+    if(workerIndex.contains(workerIndexReservation)){
+      getUniqueReservations(cdf_worker_speed, workerIndex);
+    }
+    return workerIndexReservation;
+  }
+
   @Override
   public Map<InetSocketAddress, TEnqueueTaskReservationsRequest>
       getEnqueueTaskReservationsRequests(
@@ -78,16 +110,35 @@ public class UnconstrainedTaskPlacer implements TaskPlacer {
           Collection<InetSocketAddress> nodes, THostPort schedulerAddress) {
     LOG.debug(Logging.functionCall(schedulingRequest, requestId, nodes, schedulerAddress));
 
+    List<InetSocketAddress> nodeList = Lists.newArrayList(nodes);
+    List<InetSocketAddress> subNodeList = new ArrayList<InetSocketAddress>();
+
+    double[] cdf_worker_speed = pssimplmentation(schedulingRequest.getTasks().get(0).workSpeed);
+    ArrayList<Integer> workerIndex = new ArrayList<Integer>();
     int numTasks = schedulingRequest.getTasks().size();
     int reservationsToLaunch = (int) Math.ceil(probeRatio * numTasks);
     LOG.debug("Request " + requestId + ": Creating " + reservationsToLaunch +
-              " task reservations for " + numTasks + " tasks");
+            " task reservations for " + numTasks + " tasks");
 
-    // Get a random subset of nodes by shuffling list.
-    List<InetSocketAddress> nodeList = Lists.newArrayList(nodes);
-    Collections.shuffle(nodeList);
-    if (reservationsToLaunch < nodeList.size())
-      nodeList = nodeList.subList(0, reservationsToLaunch);
+    if (nodes.size() > reservationsToLaunch) {
+      for (int i = 0; i < reservationsToLaunch; i++) {
+        int workerIndexReservation = getUniqueReservations(cdf_worker_speed, workerIndex);
+        workerIndex.add(workerIndexReservation);
+      }
+      for (int i = 0; i < nodeList.size(); i++) {
+        for (int j = 0; j < workerIndex.size(); j++) {
+          if (i == j) {
+            subNodeList.add(nodeList.get(j));
+          }
+        }
+      }
+      nodeList = subNodeList;
+    }
+//    else if (reservationsToLaunch < nodeList.size()){
+//      // Get a random subset of nodes by shuffling list.
+//      Collections.shuffle(nodeList);
+//      nodeList = nodeList.subList(0, reservationsToLaunch);
+//    }
 
     for (TTaskSpec task : schedulingRequest.getTasks()) {
       TTaskLaunchSpec taskLaunchSpec = new TTaskLaunchSpec(task.getTaskId(),
