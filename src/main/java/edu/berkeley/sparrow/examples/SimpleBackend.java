@@ -118,9 +118,8 @@ public class SimpleBackend implements BackendService.Iface {
     @Override
     public void run() {
       long startTime = System.currentTimeMillis();
-      System.out.println("Workspeed" + workSpeed);
       try {
-        Thread.sleep(taskDurationMillis);
+        Thread.sleep(taskDurationMillis/Integer.valueOf(workSpeed));
       } catch (InterruptedException e) {
         LOG.error("Interrupted while sleeping: " + e.getMessage());
       }
