@@ -127,7 +127,7 @@ public class SimpleBackend implements BackendService.Iface {
       long startTime = System.currentTimeMillis();
       try {
         System.out.println("Inet" + Inet4Address.getLocalHost().getHostAddress());
-        String thisHost = Inet4Address.getLocalHost().getHostAddress()
+        String thisHost = Inet4Address.getLocalHost().getHostAddress();
         Properties props = new Properties();
         String hostWorkSpeed = "";
         for (Map.Entry<Object, Object> e : props.entrySet()) {
