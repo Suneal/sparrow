@@ -17,7 +17,11 @@
 package edu.berkeley.sparrow.examples;
 
 import java.io.IOException;
+import java.net.Inet4Address;
+import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
+import java.util.Map;
+import java.util.Properties;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -122,10 +126,21 @@ public class SimpleBackend implements BackendService.Iface {
     public void run() {
       long startTime = System.currentTimeMillis();
       try {
+        System.out.println("Inet" + Inet4Address.getLocalHost().getHostAddress());
+        String thisHost = Inet4Address.getLocalHost().getHostAddress()
+        Properties props = new Properties();
+        String hostWorkSpeed = "";
+        for (Map.Entry<Object, Object> e : props.entrySet()) {
+          if(((String) e.getKey()).equals(thisHost+":20502")){
+            hostWorkSpeed = (String)e.getValue();
+          }
+        }
         //Converted Double to Long.
-        Thread.sleep((long)taskDuration/Integer.valueOf(workSpeed));
+        Thread.sleep((long)taskDuration/Integer.valueOf(hostWorkSpeed));
       } catch (InterruptedException e) {
         LOG.error("Interrupted while sleeping: " + e.getMessage());
+      } catch (UnknownHostException e) {
+        e.printStackTrace();
       }
       LOG.debug("Task completed in " + (System.currentTimeMillis() - startTime) + "ms");
       finishedTasks.add(taskId);
