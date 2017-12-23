@@ -129,8 +129,7 @@ public class SimpleFrontend implements FrontendService.Iface {
     @Override
     public void run() {
       // Generate tasks in the format expected by Sparrow. First, pack task parameters.
-      ByteBuffer message = ByteBuffer.allocate(16);
-      message.putLong(System.currentTimeMillis());
+      ByteBuffer message = ByteBuffer.allocate(20);
       message.putDouble(taskDurations.get(i));
       i++;
 
@@ -202,6 +201,7 @@ public class SimpleFrontend implements FrontendService.Iface {
 
       int i = 0;
       for (String node: conf.getStringArray(SparrowConf.STATIC_NODE_MONITORS)) {
+        node = node.substring(0, node.indexOf(":"));
         workSpeedMap.put(node,String.valueOf(final_worker_speeds[i]));
         i++;
       }
