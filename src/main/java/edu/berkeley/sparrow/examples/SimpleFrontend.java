@@ -202,6 +202,7 @@ public class SimpleFrontend implements FrontendService.Iface {
 
       int i = 0;
       for (String node: conf.getStringArray(SparrowConf.STATIC_NODE_MONITORS)) {
+        node = node.substring(0, node.indexOf(":")); //Getting rid of the port number
         workSpeedMap.put(node,String.valueOf(final_worker_speeds[i]));
         i++;
       }

@@ -17,6 +17,7 @@
 package edu.berkeley.sparrow.examples;
 
 import java.io.IOException;
+import java.io.StringReader;
 import java.net.Inet4Address;
 import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
@@ -116,7 +117,7 @@ public class SimpleBackend implements BackendService.Iface {
     private long taskStartTime;
 
     public TaskRunnable(String requestId, TFullTaskId taskId, ByteBuffer message, String workSpeed) {
-      this.taskStartTime= message.getLong();
+      this.taskStartTime= message.getLong(); //This isn't curently being used but can be used to check the wait and response time.
       this.taskDuration=message.getDouble();
       this.taskId = taskId;
       this.workSpeed = workSpeed;
@@ -126,20 +127,24 @@ public class SimpleBackend implements BackendService.Iface {
     public void run() {
       long startTime = System.currentTimeMillis();
       try {
-        System.out.println("Inet" + Inet4Address.getLocalHost().getHostAddress());
-        String thisHost = Inet4Address.getLocalHost().getHostAddress()
+        String thisHost = Inet4Address.getLocalHost().getHostAddress();
         Properties props = new Properties();
-        String hostWorkSpeed = "";
+        props.load(new StringReader(workSpeed.substring(1, workSpeed.length() - 1).replace(", ", "\n")));
+        String hostWorkSpeed = "1"; //Defaults to 1. In case there is some mismatch in the way hostname is being passed from the
+                                      //Front end. Need to be careful but the experiment will most probably pause if this scenario is encountered.
+
         for (Map.Entry<Object, Object> e : props.entrySet()) {
-          if(((String) e.getKey()).equals(thisHost+":20502")){
+          if((String.valueOf(e.getKey())).equals(thisHost)){
             hostWorkSpeed = (String)e.getValue();
           }
         }
-        //Converted Double to Long.
-        Thread.sleep((long)taskDuration/Integer.valueOf(hostWorkSpeed));
+
+        Thread.sleep((long)((Double.valueOf(taskDuration)/Double.valueOf(hostWorkSpeed))));
       } catch (InterruptedException e) {
         LOG.error("Interrupted while sleeping: " + e.getMessage());
       } catch (UnknownHostException e) {
+        e.printStackTrace();
+      } catch (IOException e) {
         e.printStackTrace();
       }
       LOG.debug("Task completed in " + (System.currentTimeMillis() - startTime) + "ms");
