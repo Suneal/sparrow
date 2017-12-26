@@ -147,6 +147,7 @@ public class SimpleBackend implements BackendService.Iface {
       } catch (IOException e) {
         e.printStackTrace();
       }
+      LOG.debug("Actual task in " + (System.currentTimeMillis() - startTime) + "ms");
       LOG.debug("Task completed in " + (System.currentTimeMillis() - startTime) + "ms");
       finishedTasks.add(taskId);
     }
