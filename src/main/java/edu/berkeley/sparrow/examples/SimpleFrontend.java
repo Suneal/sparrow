@@ -20,9 +20,12 @@ import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
+import edu.berkeley.sparrow.daemon.SparrowConf;
+import edu.berkeley.sparrow.daemon.util.ConfigUtil;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 
@@ -56,6 +59,9 @@ public class SimpleFrontend implements FrontendService.Iface {
   public static final String TASKS_PER_JOB = "tasks_per_job";
   public static final int DEFAULT_TASKS_PER_JOB = 1;
 
+  public static final String LOAD = "load";
+  public static final double DEFAULT_LOAD = 0.1;
+
   /** Duration of one task, in milliseconds */
   public static final String TASK_DURATION_MILLIS = "task_duration_millis";
   public static final int DEFAULT_TASK_DURATION_MILLIS = 100;
@@ -64,6 +70,8 @@ public class SimpleFrontend implements FrontendService.Iface {
   public static final String SCHEDULER_HOST = "scheduler_host";
   public static final String DEFAULT_SCHEDULER_HOST = "localhost";
   public static final String SCHEDULER_PORT = "scheduler_port";
+
+  public static int TOTAL_WORKERS = 10;
 
   /**
    * Default application name.
@@ -133,13 +141,29 @@ public class SimpleFrontend implements FrontendService.Iface {
         conf = new PropertiesConfiguration(configFile);
       }
 
-      int arrivalPeriodMillis = conf.getInt(JOB_ARRIVAL_PERIOD_MILLIS,
-          DEFAULT_JOB_ARRIVAL_PERIOD_MILLIS);
+      if (!conf.containsKey(SparrowConf.STATIC_NODE_MONITORS)) {
+        throw new RuntimeException("Missing configuration node monitor list");
+      }
+      Set<InetSocketAddress> backends = ConfigUtil.parseBackends(conf);
+      TOTAL_WORKERS = backends.size();;
+
+      double load = conf.getDouble(LOAD,DEFAULT_LOAD);
       int experimentDurationS = conf.getInt(EXPERIMENT_S, DEFAULT_EXPERIMENT_S);
+      int taskDurationMillis = conf.getInt(TASK_DURATION_MILLIS, DEFAULT_TASK_DURATION_MILLIS);
+      int tasksPerJob = conf.getInt(TASKS_PER_JOB, DEFAULT_TASKS_PER_JOB);
+      System.out.println("TASKODU" + taskDurationMillis);
+
+      double serviceRate = TOTAL_WORKERS/taskDurationMillis;
+
+      double arrivalRate = load*serviceRate;
+      long arrivalPeriodMillis = (long)(tasksPerJob/arrivalRate);
+
+      LOG.debug("AP: " + arrivalPeriodMillis + "; AR: " +arrivalRate + "; TD: "+ taskDurationMillis + "; SR: " + serviceRate +
+              "; W:  " + 1);
+
       LOG.debug("Using arrival period of " + arrivalPeriodMillis +
           " milliseconds and running experiment for " + experimentDurationS + " seconds.");
-      int tasksPerJob = conf.getInt(TASKS_PER_JOB, DEFAULT_TASKS_PER_JOB);
-      int taskDurationMillis = conf.getInt(TASK_DURATION_MILLIS, DEFAULT_TASK_DURATION_MILLIS);
+
 
       int schedulerPort = conf.getInt(SCHEDULER_PORT,
           SchedulerThrift.DEFAULT_SCHEDULER_THRIFT_PORT);
