@@ -20,6 +20,7 @@ import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -59,6 +60,8 @@ public class SimpleFrontend implements FrontendService.Iface {
   public static final String TASKS_PER_JOB = "tasks_per_job";
   public static final int DEFAULT_TASKS_PER_JOB = 1;
 
+  public static int TOTAL_NO_OF_TASKS= (DEFAULT_EXPERIMENT_S / DEFAULT_JOB_ARRIVAL_PERIOD_MILLIS)  * DEFAULT_TASKS_PER_JOB + 1;
+
   public static final String LOAD = "load";
   public static final double DEFAULT_LOAD = 0.1;
 
@@ -84,21 +87,31 @@ public class SimpleFrontend implements FrontendService.Iface {
 
   private SparrowFrontendClient client;
 
+    public static Random random = new Random();
+
+    public static double getNext(double lambda) {
+        return Math.log(1-random.nextDouble())/(-lambda);
+       }
+   static ArrayList<Double> taskDurations = new ArrayList<Double>();
+
   /** A runnable which Spawns a new thread to launch a scheduling request. */
   private class JobLaunchRunnable implements Runnable {
     private int tasksPerJob;
     private int taskDurationMillis;
+    private int i;
 
-    public JobLaunchRunnable(int tasksPerJob, int taskDurationMillis) {
+    public JobLaunchRunnable(int tasksPerJob, ArrayList<Double> taskDurations) {
       this.tasksPerJob = tasksPerJob;
       this.taskDurationMillis = taskDurationMillis;
+      this.i = 0; //index
     }
 
     @Override
     public void run() {
       // Generate tasks in the format expected by Sparrow. First, pack task parameters.
-      ByteBuffer message = ByteBuffer.allocate(4);
-      message.putInt(taskDurationMillis);
+      ByteBuffer message = ByteBuffer.allocate(8);
+      message.putDouble(taskDurations.get(i));
+      i++;
 
       List<TTaskSpec> tasks = new ArrayList<TTaskSpec>();
       for (int taskId = 0; taskId < tasksPerJob; taskId++) {
@@ -158,6 +171,15 @@ public class SimpleFrontend implements FrontendService.Iface {
       double arrivalRate = load*serviceRate;
       long arrivalPeriodMillis = (long)(tasksPerJob/arrivalRate);
 
+      TOTAL_NO_OF_TASKS= (int) ((experimentDurationS/ arrivalPeriodMillis)  * tasksPerJob+ 1);
+
+      //Generate Exponential Data
+      int median_task_duration = taskDurationMillis;
+      double lambda = 1.0/median_task_duration;
+      for (int l = 0; l < TOTAL_NO_OF_TASKS; l++){
+           taskDurations.add(getNext(lambda));
+      }
+
       LOG.debug("AP: " + arrivalPeriodMillis + "; AR: " +arrivalRate + "; TD: "+ taskDurationMillis + "; SR: " + serviceRate +
               "; W:  " + 1);
 
@@ -170,8 +192,7 @@ public class SimpleFrontend implements FrontendService.Iface {
       String schedulerHost = conf.getString(SCHEDULER_HOST, DEFAULT_SCHEDULER_HOST);
       client = new SparrowFrontendClient();
       client.initialize(new InetSocketAddress(schedulerHost, schedulerPort), APPLICATION_ID, this);
-
-      JobLaunchRunnable runnable = new JobLaunchRunnable(tasksPerJob, taskDurationMillis);
+      JobLaunchRunnable runnable = new JobLaunchRunnable(tasksPerJob, taskDurations);
       ScheduledThreadPoolExecutor taskLauncher = new ScheduledThreadPoolExecutor(1);
       taskLauncher.scheduleAtFixedRate(runnable, 0, arrivalPeriodMillis, TimeUnit.MILLISECONDS);
 

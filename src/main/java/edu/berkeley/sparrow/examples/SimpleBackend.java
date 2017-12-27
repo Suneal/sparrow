@@ -108,9 +108,10 @@ public class SimpleBackend implements BackendService.Iface {
   private class TaskRunnable implements Runnable {
     private int taskDurationMillis;
     private TFullTaskId taskId;
+      private double taskDuration;
 
     public TaskRunnable(String requestId, TFullTaskId taskId, ByteBuffer message) {
-      this.taskDurationMillis = message.getInt();
+      this.taskDuration=message.getDouble()
       this.taskId = taskId;
     }
 
@@ -118,7 +119,7 @@ public class SimpleBackend implements BackendService.Iface {
     public void run() {
       long startTime = System.currentTimeMillis();
       try {
-        Thread.sleep(taskDurationMillis);
+        Thread.sleep((long)taskDuration);
       } catch (InterruptedException e) {
         LOG.error("Interrupted while sleeping: " + e.getMessage());
       }
