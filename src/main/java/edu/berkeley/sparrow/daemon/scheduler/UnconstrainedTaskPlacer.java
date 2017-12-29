@@ -16,10 +16,12 @@
 
 package edu.berkeley.sparrow.daemon.scheduler;
 
+import java.io.IOException;
 import java.io.StringReader;
 import java.net.InetSocketAddress;
 import java.util.*;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.math3.distribution.UniformRealDistribution;
 import org.apache.commons.math3.util.MathUtils;
 import org.apache.log4j.Logger;
@@ -68,14 +70,23 @@ public class UnconstrainedTaskPlacer implements TaskPlacer {
   }
 
 
-  public static double[] pssimplmentation(String workerSpeedMap){
-    Properties props = new Properties();
+
+  public static double[] pssimplmentation(String workerSpeedMap) throws IOException {
+    
+    workerSpeedMap = workerSpeedMap.substring(1, workerSpeedMap.length()-1);           //remove curly brackets
+    String[] keyValuePairs = workerSpeedMap.split(",");              //split the string to create key-value pairs
+
     ArrayList<String> nodeList = new ArrayList<String>();
     ArrayList<Double> workerSpeedList= new ArrayList<Double>();
-    for (Map.Entry<Object, Object> e : props.entrySet()) {
-      nodeList.add((String) e.getKey());
-      workerSpeedList.add(Double.valueOf((String)e.getValue()));
+
+    for(String pair : keyValuePairs)                        //iterate over the pairs
+    {
+
+      String[] entry = pair.split("=");                   //split the pairs to get key and value
+      nodeList.add((String) entry[0].trim());
+      workerSpeedList.add(Double.valueOf((String)entry[1].trim()));
     }
+
 
     double sum = 0;
     for(double d : workerSpeedList)
@@ -113,7 +124,12 @@ public class UnconstrainedTaskPlacer implements TaskPlacer {
     List<InetSocketAddress> nodeList = Lists.newArrayList(nodes);
     List<InetSocketAddress> subNodeList = new ArrayList<InetSocketAddress>();
 
-    double[] cdf_worker_speed = pssimplmentation(schedulingRequest.getTasks().get(0).workSpeed);
+    double[] cdf_worker_speed = new double[10];
+    try {
+      cdf_worker_speed = pssimplmentation(schedulingRequest.getTasks().get(0).workSpeed);
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
     ArrayList<Integer> workerIndex = new ArrayList<Integer>();
     int numTasks = schedulingRequest.getTasks().size();
     int reservationsToLaunch = (int) Math.ceil(probeRatio * numTasks);

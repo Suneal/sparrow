@@ -180,7 +180,7 @@ public class SimpleFrontend implements FrontendService.Iface {
         throw new RuntimeException("Missing configuration node monitor list");
       }
       Set<InetSocketAddress> backends =ConfigUtil.parseBackends(conf);
-      TOTAL_WORKERS = backends.size();;
+      TOTAL_WORKERS = backends.size();
 
       //2 is the exponent for Zipf's Distribution
       int[] worker_speeds = unidenticalWorkSpeeds(backends.size(),2);
