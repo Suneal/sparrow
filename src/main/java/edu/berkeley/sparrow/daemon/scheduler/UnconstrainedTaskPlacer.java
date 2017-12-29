@@ -110,39 +110,20 @@ public class UnconstrainedTaskPlacer implements TaskPlacer {
           Collection<InetSocketAddress> nodes, THostPort schedulerAddress) {
     LOG.debug(Logging.functionCall(schedulingRequest, requestId, nodes, schedulerAddress));
 
-    List<InetSocketAddress> nodeList = Lists.newArrayList(nodes);
-    List<InetSocketAddress> subNodeList = new ArrayList<InetSocketAddress>();
-
-    double[] cdf_worker_speed = pssimplmentation(schedulingRequest.getTasks().get(0).workSpeed);
-    ArrayList<Integer> workerIndex = new ArrayList<Integer>();
     int numTasks = schedulingRequest.getTasks().size();
     int reservationsToLaunch = (int) Math.ceil(probeRatio * numTasks);
     LOG.debug("Request " + requestId + ": Creating " + reservationsToLaunch +
             " task reservations for " + numTasks + " tasks");
 
-    if (nodes.size() > reservationsToLaunch) {
-      for (int i = 0; i < reservationsToLaunch; i++) {
-        int workerIndexReservation = getUniqueReservations(cdf_worker_speed, workerIndex);
-        workerIndex.add(workerIndexReservation);
-      }
-      for (int i = 0; i < nodeList.size(); i++) {
-        for (int j = 0; j < workerIndex.size(); j++) {
-          if (i == j) {
-            subNodeList.add(nodeList.get(j));
-          }
-        }
-      }
-      nodeList = subNodeList;
-    }
-//    else if (reservationsToLaunch < nodeList.size()){
-//      // Get a random subset of nodes by shuffling list.
-//      Collections.shuffle(nodeList);
-//      nodeList = nodeList.subList(0, reservationsToLaunch);
-//    }
+    // Get a random subset of nodes by shuffling list.
+    List<InetSocketAddress> nodeList = Lists.newArrayList(nodes);
+    Collections.shuffle(nodeList);
+    if (reservationsToLaunch < nodeList.size())
+      nodeList = nodeList.subList(0, reservationsToLaunch);
 
     for (TTaskSpec task : schedulingRequest.getTasks()) {
       TTaskLaunchSpec taskLaunchSpec = new TTaskLaunchSpec(task.getTaskId(),
-                                                           task.bufferForMessage(), task.getWorkSpeed());
+              task.bufferForMessage(), task.getWorkSpeed());
       unlaunchedTasks.add(taskLaunchSpec);
     }
 

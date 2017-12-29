@@ -18,6 +18,7 @@ package edu.berkeley.sparrow.examples;
 
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
+import java.text.DecimalFormat;
 import java.util.*;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -61,7 +62,7 @@ public class SimpleFrontend implements FrontendService.Iface {
   public static final String TASKS_PER_JOB = "tasks_per_job";
   public static final int DEFAULT_TASKS_PER_JOB = 1;
 
-  public static int TOTAL_NO_OF_TASKS= (DEFAULT_EXPERIMENT_S / DEFAULT_JOB_ARRIVAL_PERIOD_MILLIS)  * DEFAULT_TASKS_PER_JOB + 1;
+  public static int TOTAL_NO_OF_TASKS= (DEFAULT_EXPERIMENT_S / DEFAULT_JOB_ARRIVAL_PERIOD_MILLIS)  * DEFAULT_TASKS_PER_JOB*1000 + 1;
 
 
   public static final String LOAD = "load";
@@ -179,28 +180,17 @@ public class SimpleFrontend implements FrontendService.Iface {
       if (!conf.containsKey(SparrowConf.STATIC_NODE_MONITORS)) {
         throw new RuntimeException("Missing configuration node monitor list");
       }
+
       Set<InetSocketAddress> backends =ConfigUtil.parseBackends(conf);
-      TOTAL_WORKERS = backends.size();;
+      TOTAL_WORKERS = backends.size();
 
-      //2 is the exponent for Zipf's Distribution
-      int[] worker_speeds = unidenticalWorkSpeeds(backends.size(),2);
+      int final_worker_speeds[] = new int[backends.size()];
 
-      double[] new_worker_speeds =  new double[TOTAL_WORKERS];
-      for (int i= 0; i< worker_speeds.length; i++){
-        new_worker_speeds[i] = (double) 1.0/worker_speeds[i];
-      }
-
-      double minValue = MinMax.getMinValue(new_worker_speeds);
-      double maxValue = MinMax.getMaxValue(new_worker_speeds);
-
-      double[] final_worker_speeds = new double[TOTAL_WORKERS];
-      for (int i= 0; i< new_worker_speeds.length; i++){
-        final_worker_speeds[i] = ((new_worker_speeds[i] - minValue)/
-                (maxValue - minValue))* (upper_bound - lower_bound)+ lower_bound;
-        //System.out.println("workerspeed"+ final_worker_speeds[i]);
-      }
+      Arrays.fill(final_worker_speeds, 1);
+      
 
       int i = 0;
+
       for (String node: conf.getStringArray(SparrowConf.STATIC_NODE_MONITORS)) {
         node = node.substring(0, node.indexOf(":")); //Getting rid of the port number
         workSpeedMap.put(node,String.valueOf(final_worker_speeds[i]));
@@ -215,9 +205,10 @@ public class SimpleFrontend implements FrontendService.Iface {
 
 
       int tasksPerJob = conf.getInt(TASKS_PER_JOB, DEFAULT_TASKS_PER_JOB);
-      double serviceRate = 0;
+      double serviceRate = 0.0;
+
       for(int k = 0; k < final_worker_speeds.length; k++){
-        serviceRate += final_worker_speeds[k]/taskDurationMillis;
+        serviceRate +=((double) final_worker_speeds[k]/(double) taskDurationMillis);
       }
 
       double arrivalRate = load*serviceRate;
