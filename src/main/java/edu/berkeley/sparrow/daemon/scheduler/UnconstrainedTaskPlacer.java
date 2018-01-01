@@ -157,7 +157,7 @@ public class UnconstrainedTaskPlacer implements TaskPlacer {
       //So this comparision should make sense but using hashmap would be a better idea.
       //TODO also noticed 5,5 as workerIndex.. Should be unique
       for (int j = 0; j < workerIndex.size(); j++) {
-        subNodeList.add(nodeList.get(workerIndex.get(j-1)));
+        subNodeList.add(nodeList.get(workerIndex.get(j) -1));
       }
       nodeList = subNodeList;
 
