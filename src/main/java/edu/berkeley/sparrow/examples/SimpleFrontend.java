@@ -211,9 +211,9 @@ public class SimpleFrontend implements FrontendService.Iface {
         i++;
       }
 
-      for(Map.Entry<String, String> entry : workSpeedMap.entrySet()){
-        System.out.printf("HostName : %s and WorkerSpeed: %s %n", entry.getKey(), entry.getValue());
-      }
+//      for(Map.Entry<String, String> entry : workSpeedMap.entrySet()){
+//        System.out.printf("HostName : %s and WorkerSpeed: %s %n", entry.getKey(), entry.getValue());
+//      }
 
       double load = conf.getDouble(LOAD,DEFAULT_LOAD);
 
