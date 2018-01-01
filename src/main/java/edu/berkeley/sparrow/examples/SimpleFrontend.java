@@ -133,7 +133,7 @@ public class SimpleFrontend implements FrontendService.Iface {
       ByteBuffer message = ByteBuffer.allocate(16);
       message.putLong(System.currentTimeMillis());
       message.putDouble(taskDurations.get(i));
-      System.out.println(i + " --" + taskDurations.get(i));
+      //System.out.println(i + " --" + taskDurations.get(i));
       i++;
 
 
