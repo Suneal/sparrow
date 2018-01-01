@@ -81,7 +81,6 @@ public class UnconstrainedTaskPlacer implements TaskPlacer {
 
     for(String pair : keyValuePairs)                        //iterate over the pairs
     {
-
       String[] entry = pair.split("=");                   //split the pairs to get key and value
       nodeList.add((String) entry[0].trim());
       workerSpeedList.add(Double.valueOf((String)entry[1].trim()));
@@ -101,13 +100,19 @@ public class UnconstrainedTaskPlacer implements TaskPlacer {
       cdf_worker_speed[j] = cdf;
       j++;
     }
+    //CDF of worker speed + PSS based on Qiong's python pss file
+    //Unsure why we need CDF here
     return cdf_worker_speed;
   }
+
+
+  //Get workerSpeed where cdf allows retrieving higher workerspeed with higher probability
 
   public static int getUniqueReservations(double[] cdf_worker_speed, ArrayList<Integer> workerIndex){
     UniformRealDistribution uniformRealDistribution = new UniformRealDistribution();
     int workerIndexReservation= Math.abs(java.util.Arrays.binarySearch(cdf_worker_speed, uniformRealDistribution.sample()));
     //Maybe this recursive function isn't always necessary. //TODO comeback and fix it
+    //This doesn't allow calling the same nodemonitor twice
     if(workerIndex.contains(workerIndexReservation)){
       getUniqueReservations(cdf_worker_speed, workerIndex);
     }
@@ -124,26 +129,35 @@ public class UnconstrainedTaskPlacer implements TaskPlacer {
     List<InetSocketAddress> nodeList = Lists.newArrayList(nodes);
     List<InetSocketAddress> subNodeList = new ArrayList<InetSocketAddress>();
 
+    //pss[i] = workerspeed/sum_of_worker_speed
     double[] cdf_worker_speed = new double[10];
     try {
       cdf_worker_speed = pssimplmentation(schedulingRequest.getTasks().get(0).workSpeed);
+      //System.out.println(cdf_worker_speed.toString());
     } catch (IOException e) {
       e.printStackTrace();
     }
     ArrayList<Integer> workerIndex = new ArrayList<Integer>();
+
     int numTasks = schedulingRequest.getTasks().size();
     int reservationsToLaunch = (int) Math.ceil(probeRatio * numTasks);
+
     LOG.debug("Request " + requestId + ": Creating " + reservationsToLaunch +
             " task reservations for " + numTasks + " tasks");
 
     if (nodes.size() > reservationsToLaunch) {
       for (int i = 0; i < reservationsToLaunch; i++) {
         int workerIndexReservation = getUniqueReservations(cdf_worker_speed, workerIndex);
-        workerIndex.add(workerIndexReservation);
+        workerIndex.add(workerIndexReservation); //Chosen workers based on proportional sampling
       }
+
+
       for (int i = 0; i < nodeList.size(); i++) {
         for (int j = 0; j < workerIndex.size(); j++) {
-          if (i == j) {
+          //After PSS, we're getting the index of worker with higher probability
+          //Nodelist contains the list of workers and workerIndex contains indices from that node list
+          //So this comparision should make sense but using hashmap would be a better idea.
+          if (i == workerIndex.get(j)) {
             subNodeList.add(nodeList.get(j));
           }
         }
@@ -168,6 +182,8 @@ public class UnconstrainedTaskPlacer implements TaskPlacer {
     if (nodeList.size() < reservationsToLaunch) {
     	numReservationsPerNode = reservationsToLaunch / nodeList.size();
     }
+
+
     StringBuilder debugString = new StringBuilder();
     for (int i = 0; i < nodeList.size(); i++) {
       int numReservations = numReservationsPerNode;
