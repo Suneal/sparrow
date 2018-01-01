@@ -94,6 +94,7 @@ public class SimpleFrontend implements FrontendService.Iface {
    }
   static ArrayList<Double> taskDurations = new ArrayList<Double>();
 
+  //Avoiding Max value in the worker = min value of worker speed
   public static int[] unidenticalWorkSpeeds(int no_of_elements, int exponent){
     ZipfDistribution zipfDistribution = new ZipfDistribution(no_of_elements,exponent);
     int[] worker_speeds = zipfDistribution.sample(no_of_elements);
@@ -132,7 +133,9 @@ public class SimpleFrontend implements FrontendService.Iface {
       ByteBuffer message = ByteBuffer.allocate(16);
       message.putLong(System.currentTimeMillis());
       message.putDouble(taskDurations.get(i));
+      System.out.println(i + " --" + taskDurations.get(i));
       i++;
+
 
       List<TTaskSpec> tasks = new ArrayList<TTaskSpec>();
       for (int taskId = 0; taskId < tasksPerJob; taskId++) {
@@ -185,6 +188,7 @@ public class SimpleFrontend implements FrontendService.Iface {
       //2 is the exponent for Zipf's Distribution
       int[] worker_speeds = unidenticalWorkSpeeds(backends.size(),2);
 
+      //getting value between (0,1]
       double[] new_worker_speeds =  new double[TOTAL_WORKERS];
       for (int i= 0; i< worker_speeds.length; i++){
         new_worker_speeds[i] = (double) 1.0/worker_speeds[i];
@@ -205,6 +209,10 @@ public class SimpleFrontend implements FrontendService.Iface {
         node = node.substring(0, node.indexOf(":")); //Getting rid of the port number
         workSpeedMap.put(node,String.valueOf(final_worker_speeds[i]));
         i++;
+      }
+
+      for(Map.Entry<String, String> entry : workSpeedMap.entrySet()){
+        System.out.printf("HostName : %s and WorkerSpeed: %s %n", entry.getKey(), entry.getValue());
       }
 
       double load = conf.getDouble(LOAD,DEFAULT_LOAD);
@@ -234,7 +242,7 @@ public class SimpleFrontend implements FrontendService.Iface {
 
 
       LOG.debug("AP: " + arrivalPeriodMillis + "; AR: " +arrivalRate + "; TD: "+ taskDurationMillis + "; SR: " + serviceRate +
-              "; W:  " + final_worker_speeds.length);
+              "; W:  " + final_worker_speeds.length + "Worker Speeds: " + Arrays.asList(final_worker_speeds));
 
 
       LOG.debug("Using arrival period of " + arrivalPeriodMillis +

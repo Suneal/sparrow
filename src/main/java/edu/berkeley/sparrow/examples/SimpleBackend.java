@@ -129,6 +129,8 @@ public class SimpleBackend implements BackendService.Iface {
       try {
         String thisHost = Inet4Address.getLocalHost().getHostAddress();
         Properties props = new Properties();
+        //Get worker speed in hashmap.. Extracting this everytime is done because we'll have to
+        //implement learning and the workerspeed might vary with tasks
         props.load(new StringReader(workSpeed.substring(1, workSpeed.length() - 1).replace(", ", "\n")));
         String hostWorkSpeed = "1"; //Defaults to 1. In case there is some mismatch in the way hostname is being passed from the
                                       //Front end. Need to be careful but the experiment will most probably pause if this scenario is encountered.
@@ -140,6 +142,7 @@ public class SimpleBackend implements BackendService.Iface {
         }
 
         Thread.sleep((long)((Double.valueOf(taskDuration)/Double.valueOf(hostWorkSpeed))));
+        LOG.debug("WS: " + hostWorkSpeed + "ms" + ";  Host: "+ thisHost);
       } catch (InterruptedException e) {
         LOG.error("Interrupted while sleeping: " + e.getMessage());
       } catch (UnknownHostException e) {
@@ -149,6 +152,7 @@ public class SimpleBackend implements BackendService.Iface {
       }
       LOG.debug("Actual task in " + (System.currentTimeMillis() - startTime) + "ms");
       LOG.debug("Task completed in " + (System.currentTimeMillis() - startTime) + "ms");
+
       finishedTasks.add(taskId);
     }
   }
