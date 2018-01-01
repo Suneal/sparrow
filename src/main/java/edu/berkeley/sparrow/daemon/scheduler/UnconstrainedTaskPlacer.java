@@ -150,7 +150,8 @@ public class UnconstrainedTaskPlacer implements TaskPlacer {
         int workerIndexReservation = getUniqueReservations(cdf_worker_speed, workerIndex);
         workerIndex.add(workerIndexReservation); //Chosen workers based on proportional sampling
       }
-
+    System.out.println("WorkerIndex ==>"+ workerIndex.toString());
+      System.out.println("NodeList ==>"+ nodeList.toString());
 
       for (int i = 0; i < nodeList.size(); i++) {
         for (int j = 0; j < workerIndex.size(); j++) {
@@ -164,6 +165,8 @@ public class UnconstrainedTaskPlacer implements TaskPlacer {
       }
       nodeList = subNodeList;
     }
+    System.out.println("New NodeList ==>"+ nodeList.toString());
+
 //    else if (reservationsToLaunch < nodeList.size()){
 //      // Get a random subset of nodes by shuffling list.
 //      Collections.shuffle(nodeList);
