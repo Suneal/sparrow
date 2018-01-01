@@ -62,7 +62,8 @@ public class SimpleFrontend implements FrontendService.Iface {
   public static final String TASKS_PER_JOB = "tasks_per_job";
   public static final int DEFAULT_TASKS_PER_JOB = 1;
 
-  public static int TOTAL_NO_OF_TASKS= (DEFAULT_EXPERIMENT_S / DEFAULT_JOB_ARRIVAL_PERIOD_MILLIS)  * DEFAULT_TASKS_PER_JOB*1000 + 1;
+  public static int TOTAL_NO_OF_TASKS= 0; //initialize
+ // (DEFAULT_EXPERIMENT_S / DEFAULT_JOB_ARRIVAL_PERIOD_MILLIS)  * DEFAULT_TASKS_PER_JOB*1000 + 1;
 
 
   public static final String LOAD = "load";
@@ -225,7 +226,7 @@ public class SimpleFrontend implements FrontendService.Iface {
 
 
       LOG.debug("AP: " + arrivalPeriodMillis + "; AR: " +arrivalRate + "; TD: "+ taskDurationMillis + "; SR: " + serviceRate +
-              "; W:  " + final_worker_speeds.length);
+              "; W:  " + final_worker_speeds.length + "; TASK NO: " + TOTAL_NO_OF_TASKS + "; TASK DU: " + DEFAULT_EXPERIMENT_S);
 
 
       LOG.debug("Using arrival period of " + arrivalPeriodMillis +
