@@ -150,20 +150,25 @@ public class UnconstrainedTaskPlacer implements TaskPlacer {
         int workerIndexReservation = getUniqueReservations(cdf_worker_speed, workerIndex);
         workerIndex.add(workerIndexReservation); //Chosen workers based on proportional sampling
       }
-    System.out.println("WorkerIndex ==>"+ workerIndex.toString());
+      System.out.println("WorkerIndex ==>"+ workerIndex.toString());
       System.out.println("NodeList ==>"+ nodeList.toString());
+      //After PSS, we're getting the index of worker with higher probability
+      //Nodelist contains the list of workers and workerIndex contains indices from that node list
+      //So this comparision should make sense but using hashmap would be a better idea.
+      //TODO also noticed 5,5 as workerIndex.. Should be unique
+      for (int j = 0; j < workerIndex.size(); j++) {
+        subNodeList.add(nodeList.get(workerIndex.get(j-1)));
+      }
+      nodeList = subNodeList;
 
-      for (int i = 0; i < nodeList.size(); i++) {
+/*      for (int i = 0; i < nodeList.size(); i++) {
         for (int j = 0; j < workerIndex.size(); j++) {
-          //After PSS, we're getting the index of worker with higher probability
-          //Nodelist contains the list of workers and workerIndex contains indices from that node list
-          //So this comparision should make sense but using hashmap would be a better idea.
           if (i == workerIndex.get(j)) {
             subNodeList.add(nodeList.get(j));
           }
         }
       }
-      nodeList = subNodeList;
+      nodeList = subNodeList;*/
     }
     System.out.println("New NodeList ==>"+ nodeList.toString());
 
