@@ -197,12 +197,14 @@ public class SimpleFrontend implements FrontendService.Iface {
       double minValue = MinMax.getMinValue(new_worker_speeds);
       double maxValue = MinMax.getMaxValue(new_worker_speeds);
 
-      double[] final_worker_speeds = new double[TOTAL_WORKERS];
+    /*  double[] final_worker_speeds = new double[TOTAL_WORKERS];
       for (int i= 0; i< new_worker_speeds.length; i++){
         final_worker_speeds[i] = ((new_worker_speeds[i] - minValue)/
                 (maxValue - minValue))* (upper_bound - lower_bound)+ lower_bound;
         //System.out.println("workerspeed"+ final_worker_speeds[i]);
-      }
+      }*/
+    //Using earlier calculated worker speed generated using above code.
+      double[]  final_worker_speeds = new double[]{1.0, 1.0, 1.0, 0.01, 0.109, 0.406, 1.0, 1.0, 1.0, 1.0};
 
       int i = 0;
       for (String node: conf.getStringArray(SparrowConf.STATIC_NODE_MONITORS)) {
