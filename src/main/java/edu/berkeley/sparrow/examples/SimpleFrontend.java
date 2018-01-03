@@ -232,8 +232,10 @@ public class SimpleFrontend implements FrontendService.Iface {
 
       double arrivalRate = load*serviceRate;
       long arrivalPeriodMillis = (long)(tasksPerJob/arrivalRate);
+      TOTAL_NO_OF_TASKS = 3500;
+      experimentDurationS = (int)((TOTAL_NO_OF_TASKS-1) *arrivalPeriodMillis)/(1000*tasksPerJob);
 
-      TOTAL_NO_OF_TASKS= (int) ((experimentDurationS*1000/ arrivalPeriodMillis)  * tasksPerJob+ 1);
+//      TOTAL_NO_OF_TASKS= (int) ((experimentDurationS*1000/ arrivalPeriodMillis)  * tasksPerJob+ 1);
 
       //Generate Exponential Data
       int median_task_duration = taskDurationMillis;
@@ -244,7 +246,7 @@ public class SimpleFrontend implements FrontendService.Iface {
 
 
       LOG.debug("AP: " + arrivalPeriodMillis + "; AR: " +arrivalRate + "; TD: "+ taskDurationMillis + "; SR: " + serviceRate +
-              "; W:  " + final_worker_speeds.length + "Worker Speeds: " + Arrays.asList(final_worker_speeds));
+              "; W:  " + final_worker_speeds.length + "Worker Speeds: " + final_worker_speeds.toString() + "; TOTAL TASK NUMBER: " + TOTAL_NO_OF_TASKS );
 
 
       LOG.debug("Using arrival period of " + arrivalPeriodMillis +
