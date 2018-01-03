@@ -185,9 +185,10 @@ public class SimpleFrontend implements FrontendService.Iface {
       Set<InetSocketAddress> backends =ConfigUtil.parseBackends(conf);
       TOTAL_WORKERS = backends.size();
 
-      int final_worker_speeds[] = new int[backends.size()];
+//      int final_worker_speeds[] = new int[backends.size()];
+      double[]  final_worker_speeds = new double[]{1.0, 1.0, 1.0, 0.01, 0.109, 0.406, 1.0, 1.0, 1.0, 1.0};
 
-      Arrays.fill(final_worker_speeds, 1);
+//      Arrays.fill(final_worker_speeds, 1);
       
 
       int i = 0;
@@ -209,7 +210,7 @@ public class SimpleFrontend implements FrontendService.Iface {
       double serviceRate = 0.0;
 
       for(int k = 0; k < final_worker_speeds.length; k++){
-        serviceRate +=((double) final_worker_speeds[k]/(double) taskDurationMillis);
+        serviceRate +=((double) 0.75/(double) taskDurationMillis);
       }
 
       double arrivalRate = load*serviceRate;
