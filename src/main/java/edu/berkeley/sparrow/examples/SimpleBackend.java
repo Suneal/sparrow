@@ -141,7 +141,7 @@ public class SimpleBackend implements BackendService.Iface {
           }
         }
 
-        Thread.sleep((long)((Double.valueOf(taskDuration)*Double.valueOf(hostWorkSpeed))));
+        Thread.sleep((long)((Double.valueOf(taskDuration)/Double.valueOf(hostWorkSpeed))));
         LOG.debug("WS: " + hostWorkSpeed + "ms" + ";  Host: "+ thisHost);
       } catch (InterruptedException e) {
         LOG.error("Interrupted while sleeping: " + e.getMessage());
