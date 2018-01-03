@@ -133,7 +133,7 @@ public class UnconstrainedTaskPlacer implements TaskPlacer {
     double[] cdf_worker_speed = new double[10];
     try {
       cdf_worker_speed = pssimplmentation(schedulingRequest.getTasks().get(0).workSpeed);
-      //System.out.println(cdf_worker_speed.toString());
+      System.out.println("CDF WorkerSpeed String" + cdf_worker_speed.toString());
     } catch (IOException e) {
       e.printStackTrace();
     }
@@ -150,8 +150,8 @@ public class UnconstrainedTaskPlacer implements TaskPlacer {
         int workerIndexReservation = getUniqueReservations(cdf_worker_speed, workerIndex);
         workerIndex.add(workerIndexReservation); //Chosen workers based on proportional sampling
       }
-      //System.out.println("WorkerIndex ==>"+ workerIndex.toString());
-      //System.out.println("NodeList ==>"+ nodeList.toString());
+      System.out.println("WorkerIndex ==>"+ workerIndex.toString());
+      System.out.println("NodeList ==>"+ nodeList.toString());
       //After PSS, we're getting the index of worker with higher probability
       //Nodelist contains the list of workers and workerIndex contains indices from that node list
       //So this comparision should make sense but using hashmap would be a better idea.
@@ -170,7 +170,7 @@ public class UnconstrainedTaskPlacer implements TaskPlacer {
       }
       nodeList = subNodeList;*/
     }
-    //System.out.println("New NodeList ==>"+ nodeList.toString());
+    System.out.println("New NodeList ==>"+ nodeList.toString());
 
 //    else if (reservationsToLaunch < nodeList.size()){
 //      // Get a random subset of nodes by shuffling list.
