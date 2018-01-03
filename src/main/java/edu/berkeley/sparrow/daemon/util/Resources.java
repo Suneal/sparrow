@@ -55,7 +55,6 @@ public class Resources {
   }
   
   public static int getSystemCPUCount(Configuration conf) {
-    System.out.println(SparrowConf.DEFAULT_SYSTEM_CPUS);
     // No system interrogation yet
     return conf.getInt(SparrowConf.SYSTEM_CPUS, SparrowConf.DEFAULT_SYSTEM_CPUS);
   }
