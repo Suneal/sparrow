@@ -146,7 +146,8 @@ public class SimpleBackend implements BackendService.Iface {
 
         Thread.sleep(sleepTime);
 
-        LOG.debug("WS: " + hostWorkSpeed + "ms" + ";  Host: "+ thisHost);
+        LOG.debug("WS: " + hostWorkSpeed + "ms" + ";  Host: "+ thisHost + "; sleepTime: " + sleepTime);
+
       } catch (InterruptedException e) {
         LOG.error("Interrupted while sleeping: " + e.getMessage());
       } catch (UnknownHostException e) {
@@ -156,6 +157,8 @@ public class SimpleBackend implements BackendService.Iface {
       }
       LOG.debug("Actual task in " + (taskDuration) + "ms");
       LOG.debug("Task completed in " + (System.currentTimeMillis() - startTime) + "ms");
+      LOG.debug("ResponseTime in " + (System.currentTimeMillis() - taskStartTime) + "ms");
+      LOG.debug("WaitingTime in " + (startTime - taskStartTime) + "ms");
 
       finishedTasks.add(taskId);
     }
