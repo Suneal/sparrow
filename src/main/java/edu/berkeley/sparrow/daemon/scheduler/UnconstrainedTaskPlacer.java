@@ -113,7 +113,7 @@ public class UnconstrainedTaskPlacer implements TaskPlacer {
     //Maybe this recursive function isn't always necessary. //TODO comeback and fix it
     //This doesn't allow calling the same nodemonitor twice
     if(workerIndex.contains(workerIndexReservation)){
-      getUniqueReservations(cdf_worker_speed, workerIndex);
+      workerIndexReservation = getUniqueReservations(cdf_worker_speed, workerIndex);
     }
     return workerIndexReservation;
   }
@@ -131,7 +131,7 @@ public class UnconstrainedTaskPlacer implements TaskPlacer {
     List<InetSocketAddress> newNodeList = Lists.newArrayList();
 
 
-
+    //Doing this so that index of workspeed matches the assignment
     String workerSpeedMap = schedulingRequest.getTasks().get(0).workSpeed;
 
     workerSpeedMap = workerSpeedMap.substring(1, workerSpeedMap.length()-1);           //remove curly brackets
@@ -145,27 +145,26 @@ public class UnconstrainedTaskPlacer implements TaskPlacer {
       String[] entry = pair.split("=");                   //split the pairs to get key and value
       frontEndodeList.add((String) entry[0].trim());
       workerSpeedList.add(Double.valueOf((String)entry[1].trim()));
-      System.out.println(entry[0] + ":" + entry[1]);
+//      System.out.println(entry[0] + ":" + entry[1]);
     }
 
     for (String fNode: frontEndodeList) {
       for (InetSocketAddress node : nodeList) {
-        System.out.println("SystemLogging: HOST ADDRESS: " + node.getAddress().getHostAddress());
-        System.out.println("SystemLogging: FNode: " + fNode);
+//       System.out.println("SystemLogging: HOST ADDRESS: " + node.getAddress().getHostAddress());
+//       System.out.println("SystemLogging: FNode: " + fNode);
         if(node.getAddress().getHostAddress().equalsIgnoreCase(fNode)){
           newNodeList.add(node);
         }
       }
     }
-
-    System.out.println("NAYA NODELIST: " + newNodeList.toString());
+//    System.out.println("NAYA NODELIST: " + newNodeList.toString());
     nodeList= newNodeList;
 
     //pss[i] = workerspeed/sum_of_worker_speed
-    double[] cdf_worker_speed = new double[10];
+    double[] cdf_worker_speed = new double[10]; //TODO Change to not-fixed
     try {
       cdf_worker_speed = pssimplmentation(schedulingRequest.getTasks().get(0).workSpeed);
-      System.out.println("CDF WorkerSpeed String" + cdf_worker_speed.toString());
+//      System.out.println("CDF WorkerSpeed String" + cdf_worker_speed.toString());
     } catch (IOException e) {
       e.printStackTrace();
     }
@@ -182,8 +181,8 @@ public class UnconstrainedTaskPlacer implements TaskPlacer {
         int workerIndexReservation = getUniqueReservations(cdf_worker_speed, workerIndex);
         workerIndex.add(workerIndexReservation); //Chosen workers based on proportional sampling
       }
-      System.out.println("WorkerIndex ==>"+ workerIndex.toString());
-      System.out.println("NodeList ==>"+ nodeList.toString());
+//      System.out.println("WorkerIndex ==>"+ workerIndex.toString());
+//      System.out.println("NodeList ==>"+ nodeList.toString());
       //After PSS, we're getting the index of worker with higher probability
       //Nodelist contains the list of workers and workerIndex contains indices from that node list
       //So this comparision should make sense but using hashmap would be a better idea.
