@@ -101,7 +101,6 @@ public class UnconstrainedTaskPlacer implements TaskPlacer {
       j++;
     }
     //CDF of worker speed + PSS based on Qiong's python pss file
-    //Unsure why we need CDF here
     return cdf_worker_speed;
   }
 
@@ -128,6 +127,40 @@ public class UnconstrainedTaskPlacer implements TaskPlacer {
 
     List<InetSocketAddress> nodeList = Lists.newArrayList(nodes);
     List<InetSocketAddress> subNodeList = new ArrayList<InetSocketAddress>();
+
+    List<InetSocketAddress> newNodeList = Lists.newArrayList();
+    newNodeList.add(nodeList.get(0));
+
+
+
+    String workerSpeedMap = schedulingRequest.getTasks().get(0).workSpeed;
+
+    workerSpeedMap = workerSpeedMap.substring(1, workerSpeedMap.length()-1);           //remove curly brackets
+    String[] keyValuePairs = workerSpeedMap.split(",");              //split the string to create key-value pairs
+
+    ArrayList<String> frontEndodeList = new ArrayList<String>();
+    ArrayList<Double> workerSpeedList= new ArrayList<Double>();
+
+    for(String pair : keyValuePairs)                        //iterate over the pairs
+    {
+      String[] entry = pair.split("=");                   //split the pairs to get key and value
+      frontEndodeList.add((String) entry[0].trim());
+      workerSpeedList.add(Double.valueOf((String)entry[1].trim()));
+      System.out.println(entry[0] + ":" + entry[1]);
+    }
+
+    for (String fNode: frontEndodeList) {
+      for (InetSocketAddress node : nodeList) {
+        System.out.println("SystemLogging: HOST ADDRESS: " + node.getAddress().getHostAddress());
+        System.out.println("SystemLogging: HOSTNAME: " + node.getAddress().getHostName());
+        if(node.getAddress().getHostAddress().contains(fNode)){
+          newNodeList.add(node);
+        }
+      }
+    }
+
+    System.out.println("NAYA NODELIST: " + newNodeList.toString());
+
 
     //pss[i] = workerspeed/sum_of_worker_speed
     double[] cdf_worker_speed = new double[10];
