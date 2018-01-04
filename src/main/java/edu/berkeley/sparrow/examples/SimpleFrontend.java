@@ -91,7 +91,9 @@ public class SimpleFrontend implements FrontendService.Iface {
 
   public static Random random = new Random();
 
+
   public static double getNext(double lambda) {
+    random.setSeed(123456789);
     return Math.log(1-random.nextDouble())/(-lambda);
    }
   static ArrayList<Double> taskDurations = new ArrayList<Double>();
@@ -221,7 +223,7 @@ public class SimpleFrontend implements FrontendService.Iface {
       long arrivalPeriodMillis = (long)(tasksPerJob/arrivalRate);
 
       TOTAL_NO_OF_TASKS = 3500;
-      experimentDurationS = (int)((TOTAL_NO_OF_TASKS) *arrivalPeriodMillis)/(1000*tasksPerJob);
+      experimentDurationS = (int)((TOTAL_NO_OF_TASKS) *(arrivalPeriodMillis+2))/(1000*tasksPerJob);
 
 //      TOTAL_NO_OF_TASKS= (int) ((experimentDurationS*1000/ arrivalPeriodMillis)  * tasksPerJob+ 1);
 
@@ -234,7 +236,7 @@ public class SimpleFrontend implements FrontendService.Iface {
 
 
       LOG.debug("AP: " + arrivalPeriodMillis + "; AR: " +arrivalRate + "; TD: "+ taskDurationMillis + "; SR: " + serviceRate +
-              "; W:  " + final_worker_speeds.length + "; TASK NO: " + TOTAL_NO_OF_TASKS + "; TASK DU: " + DEFAULT_EXPERIMENT_S);
+              "; W:  " + final_worker_speeds.length + "; TASK NO: " + TOTAL_NO_OF_TASKS + "; TASK DU: " + experimentDurationS);
 
 
       LOG.debug("Using arrival period of " + arrivalPeriodMillis +
