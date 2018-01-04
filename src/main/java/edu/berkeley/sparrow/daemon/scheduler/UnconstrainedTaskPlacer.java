@@ -153,14 +153,14 @@ public class UnconstrainedTaskPlacer implements TaskPlacer {
       for (InetSocketAddress node : nodeList) {
         System.out.println("SystemLogging: HOST ADDRESS: " + node.getAddress().getHostAddress());
         System.out.println("SystemLogging: HOSTNAME: " + node.getAddress().getHostName());
-        if(node.getAddress().getHostAddress().contains(fNode)){
+        if(node.getAddress().getHostAddress().equalsIgnoreCase(fNode)){
           newNodeList.add(node);
         }
       }
     }
 
     System.out.println("NAYA NODELIST: " + newNodeList.toString());
-
+    nodeList= newNodeList;
 
     //pss[i] = workerspeed/sum_of_worker_speed
     double[] cdf_worker_speed = new double[10];
