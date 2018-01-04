@@ -223,12 +223,16 @@ public class SimpleFrontend implements FrontendService.Iface {
       int experimentDurationS = conf.getInt(EXPERIMENT_S, DEFAULT_EXPERIMENT_S);
       int taskDurationMillis = conf.getInt(TASK_DURATION_MILLIS, DEFAULT_TASK_DURATION_MILLIS);
 
+      double W=0;
+      for (double m : final_worker_speeds)
+        W += m;
 
       int tasksPerJob = conf.getInt(TASKS_PER_JOB, DEFAULT_TASKS_PER_JOB);
-      double serviceRate = 0;
-      for(int k = 0; k < final_worker_speeds.length; k++){
-        serviceRate += final_worker_speeds[k]/taskDurationMillis;
-      }
+      double serviceRate = W/taskDurationMillis;
+
+//      for(int k = 0; k < final_worker_speeds.length; k++){
+//        serviceRate += final_worker_speeds[k]/taskDurationMillis;
+//      }
 
       double arrivalRate = load*serviceRate;
       long arrivalPeriodMillis = (long)(tasksPerJob/arrivalRate);
