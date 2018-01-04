@@ -225,7 +225,7 @@ public class SimpleFrontend implements FrontendService.Iface {
 
       double W=0;
       for (double m : final_worker_speeds)
-        W += m;
+        W += 1/m;
 
       int tasksPerJob = conf.getInt(TASKS_PER_JOB, DEFAULT_TASKS_PER_JOB);
       double serviceRate = W/taskDurationMillis;
