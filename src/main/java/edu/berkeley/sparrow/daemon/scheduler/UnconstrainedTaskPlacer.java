@@ -129,7 +129,6 @@ public class UnconstrainedTaskPlacer implements TaskPlacer {
     List<InetSocketAddress> subNodeList = new ArrayList<InetSocketAddress>();
 
     List<InetSocketAddress> newNodeList = Lists.newArrayList();
-    newNodeList.add(nodeList.get(0));
 
 
 
@@ -152,7 +151,7 @@ public class UnconstrainedTaskPlacer implements TaskPlacer {
     for (String fNode: frontEndodeList) {
       for (InetSocketAddress node : nodeList) {
         System.out.println("SystemLogging: HOST ADDRESS: " + node.getAddress().getHostAddress());
-        System.out.println("SystemLogging: HOSTNAME: " + node.getAddress().getHostName());
+        System.out.println("SystemLogging: FNode: " + fNode);
         if(node.getAddress().getHostAddress().equalsIgnoreCase(fNode)){
           newNodeList.add(node);
         }
