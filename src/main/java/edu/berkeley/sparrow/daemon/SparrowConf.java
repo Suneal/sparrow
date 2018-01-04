@@ -67,7 +67,7 @@ public class SparrowConf {
   /** The ratio of probes used in a scheduling decision to tasks. */
   // For requests w/o constraints...
   public final static String SAMPLE_RATIO = "sample.ratio";
-  public final static double DEFAULT_SAMPLE_RATIO = 1.05;
+  public final static double DEFAULT_SAMPLE_RATIO = 2;
   // For requests w/ constraints...
   public final static String SAMPLE_RATIO_CONSTRAINED = "sample.ratio.constrained";
   public final static int DEFAULT_SAMPLE_RATIO_CONSTRAINED = 2;

@@ -207,16 +207,23 @@ public class SimpleFrontend implements FrontendService.Iface {
 
 
       int tasksPerJob = conf.getInt(TASKS_PER_JOB, DEFAULT_TASKS_PER_JOB);
-      double serviceRate = 0.0;
 
-      for(int k = 0; k < final_worker_speeds.length; k++){
-        serviceRate +=((double) 0.75/(double) taskDurationMillis);
-      }
+      double W=0;
+      for (double m : final_worker_speeds)
+        W += m;
+
+      double averageWorkerSpeed =W/final_worker_speeds.length;
+
+      double serviceRate =((double) averageWorkerSpeed/(double) taskDurationMillis);
+
 
       double arrivalRate = load*serviceRate;
       long arrivalPeriodMillis = (long)(tasksPerJob/arrivalRate);
 
-      TOTAL_NO_OF_TASKS= (int) ((experimentDurationS*1000/ arrivalPeriodMillis)  * tasksPerJob+ 1);
+      TOTAL_NO_OF_TASKS = 3500;
+      experimentDurationS = (int)((TOTAL_NO_OF_TASKS) *arrivalPeriodMillis)/(1000*tasksPerJob);
+
+//      TOTAL_NO_OF_TASKS= (int) ((experimentDurationS*1000/ arrivalPeriodMillis)  * tasksPerJob+ 1);
 
       //Generate Exponential Data
       int median_task_duration = taskDurationMillis;

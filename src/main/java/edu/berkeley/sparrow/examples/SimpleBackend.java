@@ -138,8 +138,9 @@ public class SimpleBackend implements BackendService.Iface {
             hostWorkSpeed = (String)e.getValue();
           }
         }
-
-        Thread.sleep((long)((Double.valueOf(taskDuration)/Double.valueOf(hostWorkSpeed))));
+        long sleepTime = (long)((Double.valueOf(taskDuration)/Double.valueOf(hostWorkSpeed)));
+        Thread.sleep(sleepTime);
+        LOG.debug("WS: " + hostWorkSpeed + "ms" + ";  Host: "+ thisHost + "; sleepTime: " + sleepTime);
       } catch (InterruptedException e) {
         LOG.error("Interrupted while sleeping: " + e.getMessage());
       } catch (UnknownHostException e) {
@@ -147,8 +148,10 @@ public class SimpleBackend implements BackendService.Iface {
       } catch (IOException e) {
         e.printStackTrace();
       }
-      LOG.debug("Actual task in " + (System.currentTimeMillis() - startTime) + "ms");
+      LOG.debug("Actual task in " + (taskDuration) + "ms");
       LOG.debug("Task completed in " + (System.currentTimeMillis() - startTime) + "ms");
+      LOG.debug("ResponseTime in " + (System.currentTimeMillis() - taskStartTime) + "ms");
+      LOG.debug("WaitingTime in " + (startTime - taskStartTime) + "ms");
       finishedTasks.add(taskId);
     }
   }
