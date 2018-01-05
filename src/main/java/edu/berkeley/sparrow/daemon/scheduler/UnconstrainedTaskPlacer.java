@@ -60,6 +60,8 @@ public class UnconstrainedTaskPlacer implements TaskPlacer {
   String requestId;
 
   private double probeRatio;
+  private List<InetSocketAddress> globalNodeList = Lists.newArrayList();
+  private ArrayList<Double> globalWorkerSpeedList = new ArrayList<Double>();
 
   UnconstrainedTaskPlacer(String requestId, double probeRatio) {
     this.requestId = requestId;
@@ -71,19 +73,7 @@ public class UnconstrainedTaskPlacer implements TaskPlacer {
 
 
 
-  public static double[] pssimplmentation(String workerSpeedMap) throws IOException {
-
-    //Gets the workeSpeed Map String and converts it into hash
-    workerSpeedMap = workerSpeedMap.substring(1, workerSpeedMap.length()-1);           //remove curly brackets
-    String[] keyValuePairs = workerSpeedMap.split(",");              //split the string to create key-value pairs
-    ArrayList<String> nodeList = new ArrayList<String>();
-    ArrayList<Double> workerSpeedList= new ArrayList<Double>();
-    for(String pair : keyValuePairs)                        //iterate over the pairs
-    {
-      String[] entry = pair.split("=");                   //split the pairs to get key and value
-      nodeList.add((String) entry[0].trim());
-      workerSpeedList.add(Double.valueOf((String)entry[1].trim()));
-    }
+  public static double[] pssimplmentation(ArrayList<Double> workerSpeedList) throws IOException {
 
     //Gets the CDF of workers Speed
     double sum = 0;
@@ -108,7 +98,8 @@ public class UnconstrainedTaskPlacer implements TaskPlacer {
   public static int getUniqueReservations(double[] cdf_worker_speed, ArrayList<Integer> workerIndex){
     UniformRealDistribution uniformRealDistribution = new UniformRealDistribution();
     int workerIndexReservation= Math.abs(java.util.Arrays.binarySearch(cdf_worker_speed, uniformRealDistribution.sample()));
-    //This doesn't allow calling the same nodemonitor twice
+
+    //This doesn't allow probing the same nodemonitor twice
 //    if(workerIndex.contains(workerIndexReservation)){
  //     workerIndexReservation = getUniqueReservations(cdf_worker_speed, workerIndex);
  //   }
@@ -126,45 +117,50 @@ public class UnconstrainedTaskPlacer implements TaskPlacer {
     List<InetSocketAddress> subNodeList = new ArrayList<InetSocketAddress>();
 
     List<InetSocketAddress> newNodeList = Lists.newArrayList();
+    ArrayList<Double> workerSpeedList = new ArrayList<Double>();
 
+    if(globalNodeList.size()==0 && globalWorkerSpeedList.size() ==0) {
+      String workerSpeedMap = schedulingRequest.getTasks().get(0).workSpeed;
 
-    //Doing this so that index of workspeed matches the assignment
+      //Find a way to get the arrayList from one place instead of computing everytime
+      workerSpeedMap = workerSpeedMap.substring(1, workerSpeedMap.length() - 1);           //remove curly brackets
+      String[] keyValuePairs = workerSpeedMap.split(",");              //split the string to create key-value pairs
+      ArrayList<String> backendList = new ArrayList<String>();
 
-    String workerSpeedMap = schedulingRequest.getTasks().get(0).workSpeed;
+      for (String pair : keyValuePairs)                        //iterate over the pairs
+      {
+        String[] entry = pair.split("=");                   //split the pairs to get key and value
+        backendList.add((String) entry[0].trim());
+        workerSpeedList.add(Double.valueOf((String) entry[1].trim()));
+      }
 
-    //This is repeated ; better make a function
-    workerSpeedMap = workerSpeedMap.substring(1, workerSpeedMap.length()-1);           //remove curly brackets
-    String[] keyValuePairs = workerSpeedMap.split(",");              //split the string to create key-value pairs
-    ArrayList<String> frontEndodeList = new ArrayList<String>();
-    ArrayList<Double> workerSpeedList= new ArrayList<Double>();
-
-    for(String pair : keyValuePairs)                        //iterate over the pairs
-    {
-      String[] entry = pair.split("=");                   //split the pairs to get key and value
-      frontEndodeList.add((String) entry[0].trim());
-      workerSpeedList.add(Double.valueOf((String)entry[1].trim()));
-//      System.out.println(entry[0] + ":" + entry[1]);
-    }
-
-    for (String fNode: frontEndodeList) {
-      for (InetSocketAddress node : nodeList) {
-//       System.out.println("SystemLogging: HOST ADDRESS: " + node.getAddress().getHostAddress());
-//       System.out.println("SystemLogging: FNode: " + fNode);
-        if(node.getAddress().getHostAddress().equalsIgnoreCase(fNode)){
-          newNodeList.add(node);
+      //Sorting to match the index
+      for (String bNode : backendList) {
+        for (InetSocketAddress node : nodeList) {
+          if (node.getAddress().getHostAddress().equalsIgnoreCase(bNode)) {
+            newNodeList.add(node);
+          }
         }
       }
+      globalNodeList=newNodeList;
+      globalWorkerSpeedList = workerSpeedList
+    }else{
+      newNodeList=globalNodeList;
+      workerSpeedList = globalWorkerSpeedList;
     }
-//    System.out.println("NAYA NODELIST: " + newNodeList.toString());
-    nodeList= newNodeList;
 
-    double[] cdf_worker_speed = new double[10]; //TODO Currently 10 workers
+
+    double[] cdf_worker_speed = new double[globalNodeList.size()];
+
     try {
-      cdf_worker_speed = pssimplmentation(schedulingRequest.getTasks().get(0).workSpeed);
-//      System.out.println("CDF WorkerSpeed String" + cdf_worker_speed.toString());
+      //gets cdf of worker speed in the range of 0 to 1
+      cdf_worker_speed = pssimplmentation(workerSpeedList);
     } catch (IOException e) {
       e.printStackTrace();
     }
+
+    //This was used to make sure probes aren't sent to same worker
+    //TODO need to verify if we are allowing this
     ArrayList<Integer> workerIndex = new ArrayList<Integer>();
 
     int numTasks = schedulingRequest.getTasks().size();
@@ -178,27 +174,18 @@ public class UnconstrainedTaskPlacer implements TaskPlacer {
         int workerIndexReservation = getUniqueReservations(cdf_worker_speed, workerIndex);
         workerIndex.add(workerIndexReservation); //Chosen workers based on proportional sampling
       }
-//      System.out.println("WorkerIndex ==>"+ workerIndex.toString());
-//      System.out.println("NodeList ==>"+ nodeList.toString());
 
       //After PSS, we're getting the index of worker with higher probability
       //Nodelist contains the list of workers and workerIndex contains indices from that node list
       //So this comparision should make sense but using hashmap would be a better idea.
       for (int j = 0; j < workerIndex.size(); j++) {
-        subNodeList.add(nodeList.get(workerIndex.get(j) -1));
+        subNodeList.add(newNodeList.get(workerIndex.get(j) -1));
       }
       nodeList = subNodeList;
-
-/*      for (int i = 0; i < nodeList.size(); i++) {
-        for (int j = 0; j < workerIndex.size(); j++) {
-          if (i == workerIndex.get(j)) {
-            subNodeList.add(nodeList.get(j));
-          }
-        }
-      }
-      nodeList = subNodeList;*/
     }
+
 //    System.out.println("New NodeList ==>"+ nodeList.toString());
+
 //TODO handle case when nodelist size is less than reservations
 //    else if (reservationsToLaunch < nodeList.size()){
 //      // Get a random subset of nodes by shuffling list.
