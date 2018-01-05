@@ -109,9 +109,9 @@ public class UnconstrainedTaskPlacer implements TaskPlacer {
     UniformRealDistribution uniformRealDistribution = new UniformRealDistribution();
     int workerIndexReservation= Math.abs(java.util.Arrays.binarySearch(cdf_worker_speed, uniformRealDistribution.sample()));
     //This doesn't allow calling the same nodemonitor twice
-    if(workerIndex.contains(workerIndexReservation)){
-      workerIndexReservation = getUniqueReservations(cdf_worker_speed, workerIndex);
-    }
+//    if(workerIndex.contains(workerIndexReservation)){
+ //     workerIndexReservation = getUniqueReservations(cdf_worker_speed, workerIndex);
+ //   }
     return workerIndexReservation;
   }
 
