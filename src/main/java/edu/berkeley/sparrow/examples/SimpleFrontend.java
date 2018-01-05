@@ -55,14 +55,13 @@ public class SimpleFrontend implements FrontendService.Iface {
   public static final String JOB_ARRIVAL_PERIOD_MILLIS = "job_arrival_period_millis";
   public static final int DEFAULT_JOB_ARRIVAL_PERIOD_MILLIS = 100;
 
-
-
   /** Number of tasks per job. */
   public static final String TASKS_PER_JOB = "tasks_per_job";
   public static final int DEFAULT_TASKS_PER_JOB = 1;
 
-  public static int TOTAL_NO_OF_TASKS= (DEFAULT_EXPERIMENT_S / DEFAULT_JOB_ARRIVAL_PERIOD_MILLIS)  * DEFAULT_TASKS_PER_JOB + 1;
-
+  /** Number of tasks per job. */
+  public static final String TOTAL_NO_OF_TASKS = "tasks_per_job";
+  public static final int DEFAULT_TOTAL_NO_OF_TASKS = 3500;
 
   public static final String LOAD = "load";
   public static final double DEFAULT_LOAD = 0.1;
@@ -89,10 +88,21 @@ public class SimpleFrontend implements FrontendService.Iface {
 
   public static Random random = new Random();
 
+  //Worker Speed Mapped to its corresponding worker
+  public static Map<String, String> workSpeedMap = new HashMap<String, String>();
+  static ArrayList<Double> taskDurations = new ArrayList<Double>();
+
+
+  //Get data from exponential Distribution with parameter lambda
   public static double getNext(double lambda) {
     return Math.log(1-random.nextDouble())/(-lambda);
    }
-  static ArrayList<Double> taskDurations = new ArrayList<Double>();
+
+  //For Zipf's Distribution
+  public static  int RATIO_BETWEEN_MAX_MIN = 100;
+  public static int TOTAL_WORKERS = 10;
+  public static  double upper_bound = 1.0;
+  public static  double lower_bound = upper_bound/RATIO_BETWEEN_MAX_MIN;
 
   //Avoiding Max value in the worker = min value of worker speed
   public static int[] unidenticalWorkSpeeds(int no_of_elements, int exponent){
@@ -106,20 +116,13 @@ public class SimpleFrontend implements FrontendService.Iface {
     return  worker_speeds;
   }
 
-
-  public static  int RATIO_BETWEEN_MAX_MIN = 100;
-  public static int TOTAL_WORKERS = 10;
-  public static  double upper_bound = 1.0;
-  public static  double lower_bound = upper_bound/RATIO_BETWEEN_MAX_MIN;
-  public static Map<String, String> workSpeedMap = new HashMap<String, String>();
-
-
   /** A runnable which Spawns a new thread to launch a scheduling request. */
   private class JobLaunchRunnable implements Runnable {
     private int tasksPerJob;
     private String workerSpeed;
     private ArrayList<Double> taskDurations;
     private int i;
+
     public JobLaunchRunnable(int tasksPerJob, ArrayList<Double> taskDurations,String workerSpeed  ) {
       this.tasksPerJob = tasksPerJob;
       this.workerSpeed = workerSpeed;
@@ -131,20 +134,23 @@ public class SimpleFrontend implements FrontendService.Iface {
     public void run() {
       // Generate tasks in the format expected by Sparrow. First, pack task parameters.
       ByteBuffer message = ByteBuffer.allocate(16);
+      //Sending this to double confirm response time and waiting time
       message.putLong(System.currentTimeMillis());
+      //Get Different Task Durations from Exp Distribution
       message.putDouble(taskDurations.get(i));
-      //System.out.println(i + " --" + taskDurations.get(i));
       i++;
-
 
       List<TTaskSpec> tasks = new ArrayList<TTaskSpec>();
       for (int taskId = 0; taskId < tasksPerJob; taskId++) {
         TTaskSpec spec = new TTaskSpec();
         spec.setTaskId(Integer.toString(taskId));
         spec.setMessage(message.array());
+        //Currently mapped worker speed is passed in every task
+        //TODO: While implementing learning,might have to look at this again
         spec.setWorkSpeed(workerSpeed);
         tasks.add(spec);
       }
+
       long start = System.currentTimeMillis();
       try {
         client.submitJob(APPLICATION_ID, tasks, USER);
@@ -183,7 +189,16 @@ public class SimpleFrontend implements FrontendService.Iface {
         throw new RuntimeException("Missing configuration node monitor list");
       }
       Set<InetSocketAddress> backends =ConfigUtil.parseBackends(conf);
+
       TOTAL_WORKERS = backends.size();
+      int experimentDurationS = conf.getInt(EXPERIMENT_S, DEFAULT_EXPERIMENT_S);
+      int taskDurationMillis = conf.getInt(TASK_DURATION_MILLIS, DEFAULT_TASK_DURATION_MILLIS);
+      double load = conf.getDouble(LOAD,DEFAULT_LOAD);
+      int totalNoOfTasks = conf.getInt(TOTAL_NO_OF_TASKS, DEFAULT_TOTAL_NO_OF_TASKS);
+      int tasksPerJob = conf.getInt(TASKS_PER_JOB, DEFAULT_TASKS_PER_JOB);
+
+
+      /* Generate Data from Zipf's Distribution
 
       //2 is the exponent for Zipf's Distribution
       int[] worker_speeds = unidenticalWorkSpeeds(backends.size(),2);
@@ -197,15 +212,18 @@ public class SimpleFrontend implements FrontendService.Iface {
       double minValue = MinMax.getMinValue(new_worker_speeds);
       double maxValue = MinMax.getMaxValue(new_worker_speeds);
 
-    /*  double[] final_worker_speeds = new double[TOTAL_WORKERS];
+      double[] final_worker_speeds = new double[TOTAL_WORKERS];
       for (int i= 0; i< new_worker_speeds.length; i++){
         final_worker_speeds[i] = ((new_worker_speeds[i] - minValue)/
                 (maxValue - minValue))* (upper_bound - lower_bound)+ lower_bound;
         //System.out.println("workerspeed"+ final_worker_speeds[i]);
-      }*/
-    //Using earlier calculated worker speed generated using above code.
+      }
+      */
+
+    //Using earlier calculated worker speed generated using above commented code.
       double[]  final_worker_speeds = new double[]{1.0, 1.0, 1.0, 0.01, 0.109, 0.406, 1.0, 1.0, 1.0, 1.0};
 
+      //Create HashMap of Host Name with Worker Speed
       int i = 0;
       for (String node: conf.getStringArray(SparrowConf.STATIC_NODE_MONITORS)) {
         node = node.substring(0, node.indexOf(":")); //Getting rid of the port number
@@ -213,46 +231,31 @@ public class SimpleFrontend implements FrontendService.Iface {
         i++;
       }
 
-//      for(Map.Entry<String, String> entry : workSpeedMap.entrySet()){
-//        System.out.printf("HostName : %s and WorkerSpeed: %s %n", entry.getKey(), entry.getValue());
-//      }
-
-      double load = conf.getDouble(LOAD,DEFAULT_LOAD);
-
-
-      int experimentDurationS = conf.getInt(EXPERIMENT_S, DEFAULT_EXPERIMENT_S);
-      int taskDurationMillis = conf.getInt(TASK_DURATION_MILLIS, DEFAULT_TASK_DURATION_MILLIS);
-
-      double W=0;
+      double W=0; //W is total Worker Speed in the system
       for (double m : final_worker_speeds)
         W += m;
 
-      int tasksPerJob = conf.getInt(TASKS_PER_JOB, DEFAULT_TASKS_PER_JOB);
+      //Get Service Rate
       double serviceRate = W/taskDurationMillis;
-
-//      for(int k = 0; k < final_worker_speeds.length; k++){
-//        serviceRate += final_worker_speeds[k]/taskDurationMillis;
-//      }
-
+      //Get Arrival Rate
       double arrivalRate = load*serviceRate;
+      //Get Arrival Period for individual task
       long arrivalPeriodMillis = (long)(tasksPerJob/arrivalRate);
-      TOTAL_NO_OF_TASKS = 3500;
-      experimentDurationS = (int)((TOTAL_NO_OF_TASKS-1) *arrivalPeriodMillis)/(1000*tasksPerJob);
+      //Get Experiment duration based on no. of tasks (in s)
+      experimentDurationS = (int)((totalNoOfTasks) *(arrivalPeriodMillis+2)/(1000*tasksPerJob);
 
-//      TOTAL_NO_OF_TASKS= (int) ((experimentDurationS*1000/ arrivalPeriodMillis)  * tasksPerJob+ 1);
+//    TOTAL_NO_OF_TASKS= (int) ((experimentDurationS*1000/ arrivalPeriodMillis)  * tasksPerJob+ 1);
 
       //Generate Exponential Data
       int median_task_duration = taskDurationMillis;
       double lambda = 1.0/median_task_duration;
       random.setSeed(123456789);
-      for (int l = 0; l < TOTAL_NO_OF_TASKS; l++){
+      for (int l = 0; l < totalNoOfTasks; l++){
         taskDurations.add(getNext(lambda));
       }
 
-
       LOG.debug("AP: " + arrivalPeriodMillis + "; AR: " +arrivalRate + "; TD: "+ taskDurationMillis + "; SR: " + serviceRate +
-              "; W:  " + final_worker_speeds.length + "Worker Speeds: " + final_worker_speeds.toString() + "; TOTAL TASK NUMBER: " + TOTAL_NO_OF_TASKS );
-
+              "; W:  " + final_worker_speeds.length + "Worker Speeds: " + final_worker_speeds.toString() + "; TOTAL TASK NUMBER: " + totalNoOfTasks );
 
       LOG.debug("Using arrival period of " + arrivalPeriodMillis +
               " milliseconds and running experiment for " + experimentDurationS + " seconds.");
