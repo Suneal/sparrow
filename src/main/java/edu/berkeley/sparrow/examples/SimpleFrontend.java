@@ -213,10 +213,9 @@ public class SimpleFrontend implements FrontendService.Iface {
       double W=0;
       for (double m : final_worker_speeds)
         W += m;
+      
 
-      double averageWorkerSpeed =W/final_worker_speeds.length;
-
-      double serviceRate =((double) averageWorkerSpeed/(double) taskDurationMillis);
+      double serviceRate =((double) W/(double) taskDurationMillis);
 
 
       double arrivalRate = load*serviceRate;
