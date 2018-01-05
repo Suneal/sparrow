@@ -244,6 +244,7 @@ public class SimpleFrontend implements FrontendService.Iface {
       //Generate Exponential Data
       int median_task_duration = taskDurationMillis;
       double lambda = 1.0/median_task_duration;
+      random.setSeed(123456789);
       for (int l = 0; l < TOTAL_NO_OF_TASKS; l++){
         taskDurations.add(getNext(lambda));
       }
