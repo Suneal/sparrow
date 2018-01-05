@@ -72,13 +72,12 @@ public class UnconstrainedTaskPlacer implements TaskPlacer {
 
 
   public static double[] pssimplmentation(String workerSpeedMap) throws IOException {
-    
+
+    //Gets the workeSpeed Map String and converts it into hash
     workerSpeedMap = workerSpeedMap.substring(1, workerSpeedMap.length()-1);           //remove curly brackets
     String[] keyValuePairs = workerSpeedMap.split(",");              //split the string to create key-value pairs
-
     ArrayList<String> nodeList = new ArrayList<String>();
     ArrayList<Double> workerSpeedList= new ArrayList<Double>();
-
     for(String pair : keyValuePairs)                        //iterate over the pairs
     {
       String[] entry = pair.split("=");                   //split the pairs to get key and value
@@ -86,7 +85,7 @@ public class UnconstrainedTaskPlacer implements TaskPlacer {
       workerSpeedList.add(Double.valueOf((String)entry[1].trim()));
     }
 
-
+    //Gets the CDF of workers Speed
     double sum = 0;
     for(double d : workerSpeedList)
       sum += d;
@@ -106,11 +105,9 @@ public class UnconstrainedTaskPlacer implements TaskPlacer {
 
 
   //Get workerSpeed where cdf allows retrieving higher workerspeed with higher probability
-
   public static int getUniqueReservations(double[] cdf_worker_speed, ArrayList<Integer> workerIndex){
     UniformRealDistribution uniformRealDistribution = new UniformRealDistribution();
     int workerIndexReservation= Math.abs(java.util.Arrays.binarySearch(cdf_worker_speed, uniformRealDistribution.sample()));
-    //Maybe this recursive function isn't always necessary. //TODO comeback and fix it
     //This doesn't allow calling the same nodemonitor twice
     if(workerIndex.contains(workerIndexReservation)){
       workerIndexReservation = getUniqueReservations(cdf_worker_speed, workerIndex);
@@ -132,11 +129,12 @@ public class UnconstrainedTaskPlacer implements TaskPlacer {
 
 
     //Doing this so that index of workspeed matches the assignment
+
     String workerSpeedMap = schedulingRequest.getTasks().get(0).workSpeed;
 
+    //This is repeated ; better make a function
     workerSpeedMap = workerSpeedMap.substring(1, workerSpeedMap.length()-1);           //remove curly brackets
     String[] keyValuePairs = workerSpeedMap.split(",");              //split the string to create key-value pairs
-
     ArrayList<String> frontEndodeList = new ArrayList<String>();
     ArrayList<Double> workerSpeedList= new ArrayList<Double>();
 
@@ -160,8 +158,7 @@ public class UnconstrainedTaskPlacer implements TaskPlacer {
 //    System.out.println("NAYA NODELIST: " + newNodeList.toString());
     nodeList= newNodeList;
 
-    //pss[i] = workerspeed/sum_of_worker_speed
-    double[] cdf_worker_speed = new double[10]; //TODO Change to not-fixed
+    double[] cdf_worker_speed = new double[10]; //TODO Currently 10 workers
     try {
       cdf_worker_speed = pssimplmentation(schedulingRequest.getTasks().get(0).workSpeed);
 //      System.out.println("CDF WorkerSpeed String" + cdf_worker_speed.toString());
@@ -183,10 +180,10 @@ public class UnconstrainedTaskPlacer implements TaskPlacer {
       }
 //      System.out.println("WorkerIndex ==>"+ workerIndex.toString());
 //      System.out.println("NodeList ==>"+ nodeList.toString());
+
       //After PSS, we're getting the index of worker with higher probability
       //Nodelist contains the list of workers and workerIndex contains indices from that node list
       //So this comparision should make sense but using hashmap would be a better idea.
-      //TODO also noticed 5,5 as workerIndex.. Should be unique
       for (int j = 0; j < workerIndex.size(); j++) {
         subNodeList.add(nodeList.get(workerIndex.get(j) -1));
       }
@@ -201,8 +198,8 @@ public class UnconstrainedTaskPlacer implements TaskPlacer {
       }
       nodeList = subNodeList;*/
     }
-    System.out.println("New NodeList ==>"+ nodeList.toString());
-
+//    System.out.println("New NodeList ==>"+ nodeList.toString());
+//TODO handle case when nodelist size is less than reservations
 //    else if (reservationsToLaunch < nodeList.size()){
 //      // Get a random subset of nodes by shuffling list.
 //      Collections.shuffle(nodeList);
