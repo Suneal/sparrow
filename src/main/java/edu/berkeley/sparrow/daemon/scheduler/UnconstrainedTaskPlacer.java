@@ -143,7 +143,7 @@ public class UnconstrainedTaskPlacer implements TaskPlacer {
         }
       }
       globalNodeList=newNodeList;
-      globalWorkerSpeedList = workerSpeedList
+      globalWorkerSpeedList = workerSpeedList;
     }else{
       newNodeList=globalNodeList;
       workerSpeedList = globalWorkerSpeedList;
