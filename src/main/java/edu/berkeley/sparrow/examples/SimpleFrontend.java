@@ -93,7 +93,7 @@ public class SimpleFrontend implements FrontendService.Iface {
 
 
   public static double getNext(double lambda) {
-    random.setSeed(123456789);
+
     return Math.log(1-random.nextDouble())/(-lambda);
    }
   static ArrayList<Double> taskDurations = new ArrayList<Double>();
@@ -213,7 +213,7 @@ public class SimpleFrontend implements FrontendService.Iface {
       double W=0;
       for (double m : final_worker_speeds)
         W += m;
-      
+
 
       double serviceRate =((double) W/(double) taskDurationMillis);
 
@@ -229,6 +229,7 @@ public class SimpleFrontend implements FrontendService.Iface {
       //Generate Exponential Data
       int median_task_duration = taskDurationMillis;
       double lambda = 1.0/median_task_duration;
+      random.setSeed(123456789);
       for (int l = 0; l < TOTAL_NO_OF_TASKS; l++){
         taskDurations.add(getNext(lambda));
       }
