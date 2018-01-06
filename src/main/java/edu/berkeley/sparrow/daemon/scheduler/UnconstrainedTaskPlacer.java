@@ -95,9 +95,16 @@ public class UnconstrainedTaskPlacer implements TaskPlacer {
 
 
   //Get workerSpeed where cdf allows retrieving higher workerspeed with higher probability
-  public static int getUniqueReservations(double[] cdf_worker_speed, ArrayList<Integer> workerIndex){
+  public static int getUniqueReservations(double[] cdf_worker_speed){
     UniformRealDistribution uniformRealDistribution = new UniformRealDistribution();
-    int workerIndexReservation= Math.abs(java.util.Arrays.binarySearch(cdf_worker_speed, uniformRealDistribution.sample()));
+    int workerIndexReservation= java.util.Arrays.binarySearch(cdf_worker_speed, uniformRealDistribution.sample());
+    if(workerIndexReservation == -1){
+      workerIndexReservation = 0;
+    } else{
+      workerIndexReservation = Math.abs(workerIndexReservation) -1;
+    }
+
+
 
     //This doesn't allow probing the same nodemonitor twice
 //    if(workerIndex.contains(workerIndexReservation)){
@@ -171,7 +178,7 @@ public class UnconstrainedTaskPlacer implements TaskPlacer {
 
     if (nodes.size() > reservationsToLaunch) {
       for (int i = 0; i < reservationsToLaunch; i++) {
-        int workerIndexReservation = getUniqueReservations(cdf_worker_speed, workerIndex);
+        int workerIndexReservation = getUniqueReservations(cdf_worker_speed);
         workerIndex.add(workerIndexReservation); //Chosen workers based on proportional sampling
       }
 
@@ -179,7 +186,7 @@ public class UnconstrainedTaskPlacer implements TaskPlacer {
       //Nodelist contains the list of workers and workerIndex contains indices from that node list
       //So this comparision should make sense but using hashmap would be a better idea.
       for (int j = 0; j < workerIndex.size(); j++) {
-        subNodeList.add(newNodeList.get(workerIndex.get(j) -1));
+        subNodeList.add(newNodeList.get(workerIndex.get(j)));
       }
       nodeList = subNodeList;
     }
