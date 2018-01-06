@@ -74,6 +74,7 @@ public class SimpleBackend implements BackendService.Iface {
   private static final Logger LOG = Logger.getLogger(SimpleBackend.class);
   private static final ExecutorService executor =
       Executors.newFixedThreadPool(WORKER_THREADS);
+  private static Double globalHostWorkerSpeed = -1.0;
 
   /**
    * Keeps track of finished tasks.
@@ -117,7 +118,7 @@ public class SimpleBackend implements BackendService.Iface {
     private long taskStartTime;
 
     public TaskRunnable(String requestId, TFullTaskId taskId, ByteBuffer message, String workSpeed) {
-      this.taskStartTime= message.getLong(); //This isn't curently being used but can be used to check the wait and response time.
+      this.taskStartTime= message.getLong();
       this.taskDuration=message.getDouble();
       this.taskId = taskId;
       this.workSpeed = workSpeed;
@@ -127,22 +128,26 @@ public class SimpleBackend implements BackendService.Iface {
     public void run() {
       long startTime = System.currentTimeMillis();
       try {
+        //Defaults to 1. In case there is some mismatch in the way hostname is being passed from the
+        //Front end. Need to be careful but the experiment will most probably pause if this scenario is encountered.
+        Double hostWorkSpeed = 1.0; //Defaults to 1. In case there is some mismatch in the way hostname is being passed from the
         String thisHost = Inet4Address.getLocalHost().getHostAddress();
-        Properties props = new Properties();
-        //Get worker speed in hashmap.. Extracting this everytime is done because we'll have to
-        //implement learning and the workerspeed might vary with tasks
-        props.load(new StringReader(workSpeed.substring(1, workSpeed.length() - 1).replace(", ", "\n")));
-        String hostWorkSpeed = "1"; //Defaults to 1. In case there is some mismatch in the way hostname is being passed from the
-                                      //Front end. Need to be careful but the experiment will most probably pause if this scenario is encountered.
-
-        for (Map.Entry<Object, Object> e : props.entrySet()) {
-          if((String.valueOf(e.getKey())).equals(thisHost)){
-            hostWorkSpeed = (String)e.getValue();
+        if (globalHostWorkerSpeed == -1.0) {
+          Properties props = new Properties();
+          //Get worker speed in hashmap.. Extracting this everytime is done because we'll have to
+          //implement learning and the workerspeed might vary with tasks
+          props.load(new StringReader(workSpeed.substring(1, workSpeed.length() - 1).replace(", ", "\n")));
+          for (Map.Entry<Object, Object> e : props.entrySet()) {
+            if ((String.valueOf(e.getKey())).equals(thisHost)) {
+              hostWorkSpeed = Double.valueOf((String)e.getValue());
+            }
           }
+          globalHostWorkerSpeed = hostWorkSpeed;
+        } else{
+          hostWorkSpeed = globalHostWorkerSpeed;
         }
+
         long sleepTime = (long)((Double.valueOf(taskDuration)/Double.valueOf(hostWorkSpeed)));
-
-
 
         Thread.sleep(sleepTime);
 
@@ -190,7 +195,7 @@ public class SimpleBackend implements BackendService.Iface {
   public void launchTask(ByteBuffer message, TFullTaskId taskId,
       TUserGroupInfo user, String workSpeed) throws TException {
     LOG.info("Submitting task " + taskId.getTaskId() + " at " + System.currentTimeMillis());
-
+    //Passing workSpeed made available from from Frontend
     executor.submit(new TaskRunnable(
         taskId.requestId, taskId, message,workSpeed));
   }
