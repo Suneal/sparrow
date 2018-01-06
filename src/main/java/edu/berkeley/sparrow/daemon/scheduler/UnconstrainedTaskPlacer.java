@@ -72,8 +72,8 @@ public class UnconstrainedTaskPlacer implements TaskPlacer {
   }
 
 
-
-  public static double[] pssimplmentation(ArrayList<Double> workerSpeedList) throws IOException {
+  //Test case in sparrow/src/test/java/edu/berkeley/sparrow/daemon/scheduler/TestPSS.java
+  public static double[] getCDFWokerSpeed(ArrayList<Double> workerSpeedList) throws IOException {
 
     //Gets the CDF of workers Speed
     double sum = 0;
@@ -93,9 +93,9 @@ public class UnconstrainedTaskPlacer implements TaskPlacer {
     return cdf_worker_speed;
   }
 
-
-  //Get workerSpeed where cdf allows retrieving higher workerspeed with higher probability
-  public static int getUniqueReservations(double[] cdf_worker_speed){
+  //Test case in sparrow/src/test/java/edu/berkeley/sparrow/daemon/scheduler/TestPSS.java
+  //Gets index  where cdf allows retrieving index having higher workerspeed with higher probability
+  public static int getIndexFromPSS(double[] cdf_worker_speed){
     UniformRealDistribution uniformRealDistribution = new UniformRealDistribution();
     int workerIndexReservation= java.util.Arrays.binarySearch(cdf_worker_speed, uniformRealDistribution.sample());
     if(workerIndexReservation == -1){
@@ -103,9 +103,6 @@ public class UnconstrainedTaskPlacer implements TaskPlacer {
     } else{
       workerIndexReservation = Math.abs(workerIndexReservation) -1;
     }
-
-
-
     //This doesn't allow probing the same nodemonitor twice
 //    if(workerIndex.contains(workerIndexReservation)){
  //     workerIndexReservation = getUniqueReservations(cdf_worker_speed, workerIndex);
@@ -161,7 +158,7 @@ public class UnconstrainedTaskPlacer implements TaskPlacer {
 
     try {
       //gets cdf of worker speed in the range of 0 to 1
-      cdf_worker_speed = pssimplmentation(workerSpeedList);
+      cdf_worker_speed = getCDFWokerSpeed(workerSpeedList);
     } catch (IOException e) {
       e.printStackTrace();
     }
@@ -178,7 +175,7 @@ public class UnconstrainedTaskPlacer implements TaskPlacer {
 
     if (nodes.size() > reservationsToLaunch) {
       for (int i = 0; i < reservationsToLaunch; i++) {
-        int workerIndexReservation = getUniqueReservations(cdf_worker_speed);
+        int workerIndexReservation = getIndexFromPSS(cdf_worker_speed);
         workerIndex.add(workerIndexReservation); //Chosen workers based on proportional sampling
       }
 
