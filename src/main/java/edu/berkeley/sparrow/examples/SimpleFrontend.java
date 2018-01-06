@@ -188,7 +188,8 @@ public class SimpleFrontend implements FrontendService.Iface {
       TOTAL_WORKERS = backends.size();
 
 //      int final_worker_speeds[] = new int[backends.size()];
-      double[]  final_worker_speeds = new double[]{1.0, 1.0, 1.0, 0.01, 0.109, 0.406, 1.0, 1.0, 1.0, 1.0};
+      double[]  final_worker_speeds = new double[]{1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0};
+//      double[]  final_worker_speeds = new double[]{1.0, 1.0, 1.0, 0.01, 0.109, 0.406, 1.0, 1.0, 1.0, 1.0};
 
 //      Arrays.fill(final_worker_speeds, 1);
       
