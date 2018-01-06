@@ -221,7 +221,7 @@ public class SimpleFrontend implements FrontendService.Iface {
       */
 
     //Using earlier calculated worker speed generated using above commented code.
-      double[]  final_worker_speeds = new double[]{1.0, 1.0, 1.0, 0.01, 0.109, 0.406, 1.0, 1.0, 1.0, 1.0};
+      double[]  final_worker_speeds = new double[]{0.38125, 1.0, 0.17499999999999996,0.38125,1.0 ,0.07187499999999998,0.01,0.38125,1.0,1.0};
 
       //Create HashMap of Host Name with Worker Speed
       int i = 0;
@@ -235,8 +235,22 @@ public class SimpleFrontend implements FrontendService.Iface {
       for (double m : final_worker_speeds)
         W += m;
 
+      //Generate Exponential Data
+      int median_task_duration = taskDurationMillis;
+      double lambda = 1.0/median_task_duration;
+      random.setSeed(123456789);
+      double value = 0;
+      double sumValue = 0;
+      for (int l = 0; l < totalNoOfTasks; l++){
+        value = getNext(lambda)
+        taskDurations.add(value);
+        sumValue +=value;
+
+      }
+      double averageTaskDurationMillis = (double)sumValue/totalNoOfTasks;
+
       //Get Service Rate
-      double serviceRate = W/taskDurationMillis;
+      double serviceRate = W/averageTaskDurationMillis; //When taking 3500 tasks with the given seed for exponential distribution, this is the average we get for task duration
       //Get Arrival Rate
       double arrivalRate = load*serviceRate;
       //Get Arrival Period for individual task
@@ -246,13 +260,7 @@ public class SimpleFrontend implements FrontendService.Iface {
 
 //    TOTAL_NO_OF_TASKS= (int) ((experimentDurationS*1000/ arrivalPeriodMillis)  * tasksPerJob+ 1);
 
-      //Generate Exponential Data
-      int median_task_duration = taskDurationMillis;
-      double lambda = 1.0/median_task_duration;
-      random.setSeed(123456789);
-      for (int l = 0; l < totalNoOfTasks; l++){
-        taskDurations.add(getNext(lambda));
-      }
+
 
       LOG.debug("AP: " + arrivalPeriodMillis + "; AR: " +arrivalRate + "; TD: "+ taskDurationMillis + "; SR: " + serviceRate +
               "; W:  " + final_worker_speeds.length + "Worker Speeds: " + final_worker_speeds.toString() + "; TOTAL TASK NUMBER: " + totalNoOfTasks );
