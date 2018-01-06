@@ -242,10 +242,9 @@ public class SimpleFrontend implements FrontendService.Iface {
       double value = 0;
       double sumValue = 0;
       for (int l = 0; l < totalNoOfTasks; l++){
-        value = getNext(lambda)
+        value = getNext(lambda);
         taskDurations.add(value);
         sumValue +=value;
-
       }
       double averageTaskDurationMillis = (double)sumValue/totalNoOfTasks;
 
