@@ -18,6 +18,7 @@ package edu.berkeley.sparrow.daemon.scheduler;
 
 import java.io.IOException;
 import java.io.StringReader;
+import java.lang.reflect.Array;
 import java.net.InetSocketAddress;
 import java.util.*;
 
@@ -35,6 +36,8 @@ import edu.berkeley.sparrow.thrift.THostPort;
 import edu.berkeley.sparrow.thrift.TSchedulingRequest;
 import edu.berkeley.sparrow.thrift.TTaskLaunchSpec;
 import edu.berkeley.sparrow.thrift.TTaskSpec;
+
+import javax.xml.soap.Node;
 
 /**
  * A task placer for jobs whose tasks have no placement constraints.
@@ -110,6 +113,35 @@ public class UnconstrainedTaskPlacer implements TaskPlacer {
     return workerIndexReservation;
   }
 
+  private List<InetSocketAddress> sortedNodeList(ArrayList<String> backendList, List<InetSocketAddress> nodeList){
+      List<InetSocketAddress> newNodeList = Lists.newArrayList();
+      for (String bNode : backendList) {
+          for (InetSocketAddress node : nodeList) {
+              if (node.getAddress().getHostAddress().equalsIgnoreCase(bNode)) {
+                  newNodeList.add(node);
+              }
+          }
+      }
+      return newNodeList;
+  }
+
+  private ArrayList<NodeSpeedMap> getArrayListOfNodeAndWorkers(String workerSpeedMap){
+
+    //Find a way to get the arrayList from one place instead of computing everytime
+    workerSpeedMap = workerSpeedMap.substring(1, workerSpeedMap.length() - 1);           //remove curly brackets
+    String[] keyValuePairs = workerSpeedMap.split(",");              //split the string to create key-value pairs
+    ArrayList<NodeSpeedMap> nodeSpeedMapArrayList = new ArrayList<NodeSpeedMap>();
+    for (String pair : keyValuePairs)                        //iterate over the pairs
+    {
+      String[] entry = pair.split("=");                   //split the pairs to get key and value
+      NodeSpeedMap nodeSpeedMap = new NodeSpeedMap((String) entry[0].trim(), Double.valueOf((String) entry[1].trim()));
+      nodeSpeedMapArrayList.add(nodeSpeedMap);
+    }
+    return nodeSpeedMapArrayList;
+  }
+
+
+
   @Override
   public Map<InetSocketAddress, TEnqueueTaskReservationsRequest>
       getEnqueueTaskReservationsRequests(
@@ -122,30 +154,20 @@ public class UnconstrainedTaskPlacer implements TaskPlacer {
 
     List<InetSocketAddress> newNodeList = Lists.newArrayList();
     ArrayList<Double> workerSpeedList = new ArrayList<Double>();
+    ArrayList<String> backendList = new ArrayList<String>();
 
-    if(globalNodeList.size()==0 && globalWorkerSpeedList.size() ==0) {
+    if(globalNodeList.size()==0 || globalWorkerSpeedList.size() ==0) {
+      //Because workerSpeed is passed through every task
       String workerSpeedMap = schedulingRequest.getTasks().get(0).workSpeed;
-
-      //Find a way to get the arrayList from one place instead of computing everytime
-      workerSpeedMap = workerSpeedMap.substring(1, workerSpeedMap.length() - 1);           //remove curly brackets
-      String[] keyValuePairs = workerSpeedMap.split(",");              //split the string to create key-value pairs
-      ArrayList<String> backendList = new ArrayList<String>();
-
-      for (String pair : keyValuePairs)                        //iterate over the pairs
-      {
-        String[] entry = pair.split("=");                   //split the pairs to get key and value
-        backendList.add((String) entry[0].trim());
-        workerSpeedList.add(Double.valueOf((String) entry[1].trim()));
+      ArrayList<NodeSpeedMap> nodeSpeedMapArrayList = getArrayListOfNodeAndWorkers(workerSpeedMap);
+      for(NodeSpeedMap nodeSpeedMap: nodeSpeedMapArrayList){
+          backendList.add(nodeSpeedMap.node);
+          workerSpeedList.add(nodeSpeedMap.workerSpeed);
       }
+
+      newNodeList = sortedNodeList(backendList,nodeList); //sortedNodeList to match index
 
       //Sorting to match the index
-      for (String bNode : backendList) {
-        for (InetSocketAddress node : nodeList) {
-          if (node.getAddress().getHostAddress().equalsIgnoreCase(bNode)) {
-            newNodeList.add(node);
-          }
-        }
-      }
       globalNodeList=newNodeList;
       globalWorkerSpeedList = workerSpeedList;
     }else{
