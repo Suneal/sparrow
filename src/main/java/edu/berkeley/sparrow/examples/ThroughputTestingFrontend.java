@@ -93,7 +93,7 @@ public class ThroughputTestingFrontend implements FrontendService.Iface {
       TUserGroupInfo userInfo = new TUserGroupInfo("User", "*", 0);
       
       while(true) {
-    	  client.submitJob(APPLICATION_ID, tasks, userInfo);
+    	  client.submitJob(APPLICATION_ID, tasks, userInfo, "");
     	  tasksLaunched.addAndGet(tasks.size());
         LOG.info(tasksLaunched.get() + " tasks launched");
       

@@ -102,18 +102,22 @@ public class SimpleFrontend implements FrontendService.Iface {
     private int tasksPerJob;
     private ArrayList<Double> taskDurations;
     private int i;
+    private String workSpeedMap;
 
-    public JobLaunchRunnable(int tasksPerJob, ArrayList<Double> taskDurations ) {
+    public JobLaunchRunnable(int tasksPerJob, ArrayList<Double> taskDurations, String workSpeedMap ) {
       this.tasksPerJob = tasksPerJob;
       this.taskDurations = taskDurations;
       this.i = 0; //index
+      this.workSpeedMap = workSpeedMap;
     }
 
     @Override
     public void run() {
       // Generate tasks in the format expected by Sparrow. First, pack task parameters.
-      ByteBuffer message = ByteBuffer.allocate(8);
+      ByteBuffer message = ByteBuffer.allocate(16);
+      message.putLong(System.currentTimeMillis());
       message.putDouble(taskDurations.get(i));
+
       i++;
 
       List<TTaskSpec> tasks = new ArrayList<TTaskSpec>();
@@ -125,7 +129,7 @@ public class SimpleFrontend implements FrontendService.Iface {
       }
       long start = System.currentTimeMillis();
       try {
-        client.submitJob(APPLICATION_ID, tasks, USER);
+        client.submitJob(APPLICATION_ID, tasks, USER, workSpeedMap);
       } catch (TException e) {
         LOG.error("Scheduling request failed!", e);
       }
@@ -229,7 +233,7 @@ public class SimpleFrontend implements FrontendService.Iface {
       experimentDurationS = (int)((totalNoOfTasks) *(arrivalPeriodMillis+2)/(1000*tasksPerJob))+10000;
       LOG.debug("Using arrival period of " + arrivalPeriodMillis +
               " milliseconds and running experiment for " + experimentDurationS + " seconds.");
-      
+
 
       int schedulerPort = conf.getInt(SCHEDULER_PORT,
           SchedulerThrift.DEFAULT_SCHEDULER_THRIFT_PORT);
@@ -237,7 +241,7 @@ public class SimpleFrontend implements FrontendService.Iface {
       client = new SparrowFrontendClient();
       client.initialize(new InetSocketAddress(schedulerHost, schedulerPort), APPLICATION_ID, this);
 
-      JobLaunchRunnable runnable = new JobLaunchRunnable(tasksPerJob, taskDurations);
+      JobLaunchRunnable runnable = new JobLaunchRunnable(tasksPerJob, taskDurations, workSpeedMap.toString());
       ScheduledThreadPoolExecutor taskLauncher = new ScheduledThreadPoolExecutor(1);
       taskLauncher.scheduleAtFixedRate(runnable, 0, arrivalPeriodMillis, TimeUnit.MILLISECONDS);
 

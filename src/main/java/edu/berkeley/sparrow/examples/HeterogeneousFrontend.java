@@ -112,7 +112,7 @@ public class HeterogeneousFrontend implements FrontendService.Iface {
       long start = System.currentTimeMillis();
       TUserGroupInfo userInfo = new TUserGroupInfo(user.user, "*", 0);
       try {
-        client.submitJob(APPLICATION_ID, request, userInfo);
+        client.submitJob(APPLICATION_ID, request, userInfo, "");
         LOG.debug("Submitted job: " + request + " for user " + userInfo);
       } catch (TException e) {
         LOG.error("Scheduling request failed!", e);
