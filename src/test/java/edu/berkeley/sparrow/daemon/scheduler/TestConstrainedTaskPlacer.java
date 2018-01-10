@@ -162,7 +162,7 @@ public class TestConstrainedTaskPlacer {
     for (int i = 0; i < ITERATIONS; ++i) {
       Map<InetSocketAddress, TEnqueueTaskReservationsRequest> requests =
           taskPlacer.getEnqueueTaskReservationsRequests(schedulingRequest, REQUEST_ID, allBackends,
-                                                        SCHEDULER_ADDRESS);
+                                                        SCHEDULER_ADDRESS, "");
       sanityCheckRequests(requests, 2);
     }
   }
@@ -180,7 +180,7 @@ public class TestConstrainedTaskPlacer {
 
       Map<InetSocketAddress, TEnqueueTaskReservationsRequest> requests =
           taskPlacer.getEnqueueTaskReservationsRequests(schedulingRequest, REQUEST_ID,
-                                                        allBackends, SCHEDULER_ADDRESS);
+                                                        allBackends, SCHEDULER_ADDRESS, "");
       sanityCheckRequests(requests, 6);
       sanityCheckGetTasksAndCancellation(schedulingRequest, taskPlacer,
           requests);
@@ -304,7 +304,7 @@ public class TestConstrainedTaskPlacer {
 
       Map<InetSocketAddress, TEnqueueTaskReservationsRequest> requests =
           taskPlacer.getEnqueueTaskReservationsRequests(schedulingRequest, REQUEST_ID,
-                                                        backendNodes, SCHEDULER_ADDRESS);
+                                                        backendNodes, SCHEDULER_ADDRESS,"");
 
       // Sanity check the list of requests.
       int totalEnqueuedTasks = 0;

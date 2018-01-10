@@ -100,7 +100,7 @@ public class TestUnconstrainedTaskPlacer {
 
       Map<InetSocketAddress, TEnqueueTaskReservationsRequest> requests =
           taskPlacer.getEnqueueTaskReservationsRequests(schedulingRequest, REQUEST_ID, backendNodes,
-                                                        SCHEDULER_ADDRESS);
+                                                        SCHEDULER_ADDRESS, "");
       // Sanity check the list of requests.
       final int EXPECTED_RESERVATIONS = 28;
       int reservationsCount = 0;
@@ -136,7 +136,7 @@ public class TestUnconstrainedTaskPlacer {
 
       Map<InetSocketAddress, TEnqueueTaskReservationsRequest> requests =
           taskPlacer.getEnqueueTaskReservationsRequests(schedulingRequest, REQUEST_ID, backendNodes,
-                                                        SCHEDULER_ADDRESS);
+                                                        SCHEDULER_ADDRESS, "");
       // Sanity check the list of requests.
       final int EXPECTED_REQUESTS = 3;
       assertEquals(EXPECTED_REQUESTS, requests.size());
@@ -170,7 +170,7 @@ public class TestUnconstrainedTaskPlacer {
 
       Map<InetSocketAddress, TEnqueueTaskReservationsRequest> requests =
           taskPlacer.getEnqueueTaskReservationsRequests(schedulingRequest, REQUEST_ID, backendNodes,
-                                                        SCHEDULER_ADDRESS);
+                                                        SCHEDULER_ADDRESS, "");
 
       // Now try to get tasks, and ensure that the task placer will return exactly 2 tasks.
       List<InetSocketAddress> nodes = Lists.newArrayList(requests.keySet());
@@ -213,7 +213,7 @@ public class TestUnconstrainedTaskPlacer {
 
       Map<InetSocketAddress, TEnqueueTaskReservationsRequest> requests =
           taskPlacer.getEnqueueTaskReservationsRequests(schedulingRequest, REQUEST_ID, backendNodes,
-                                                        SCHEDULER_ADDRESS);
+                                                        SCHEDULER_ADDRESS, "");
 
       // Now try to get tasks, and ensure that the task placer will return exactly 2 tasks.
       List<InetSocketAddress> nodes = Lists.newArrayList(requests.keySet());
@@ -252,7 +252,7 @@ public class TestUnconstrainedTaskPlacer {
       UnconstrainedTaskPlacer taskPlacer = new UnconstrainedTaskPlacer(REQUEST_ID, PROBE_RATIO);
       Map<InetSocketAddress, TEnqueueTaskReservationsRequest> requests =
           taskPlacer.getEnqueueTaskReservationsRequests(schedulingRequest, REQUEST_ID, backendNodes,
-              SCHEDULER_ADDRESS);
+              SCHEDULER_ADDRESS, "");
 
       List<InetSocketAddress> nodes = Lists.newArrayList(requests.keySet());
       for (int taskIndex = 0; taskIndex < NUM_TASKS; ++taskIndex) {

@@ -54,7 +54,7 @@ public interface TaskPlacer {
   public Map<InetSocketAddress, TEnqueueTaskReservationsRequest>
       getEnqueueTaskReservationsRequests(
           TSchedulingRequest schedulingRequest, String requestId,
-          Collection<InetSocketAddress> nodes, THostPort schedulerAddress);
+          Collection<InetSocketAddress> nodes, THostPort schedulerAddress, String workSpeedMap);
 
   /**
    * Returns a List of {@link TTaskLaunchSpec}s describing tasks that should be launched from the

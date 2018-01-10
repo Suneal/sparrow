@@ -352,7 +352,7 @@ public class Scheduler {
 
     Map<InetSocketAddress, TEnqueueTaskReservationsRequest> enqueueTaskReservationsRequests;
     enqueueTaskReservationsRequests = taskPlacer.getEnqueueTaskReservationsRequests(
-        request, requestId, backends, address);
+        request, requestId, backends, address, workerSpeedMap);
 
     // Request to enqueue a task at each of the selected nodes.
     for (Entry<InetSocketAddress, TEnqueueTaskReservationsRequest> entry :

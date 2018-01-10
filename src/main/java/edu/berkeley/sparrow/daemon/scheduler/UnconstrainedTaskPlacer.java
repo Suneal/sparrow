@@ -16,16 +16,11 @@
 
 package edu.berkeley.sparrow.daemon.scheduler;
 
+import java.io.IOException;
 import java.net.InetSocketAddress;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
+import org.apache.commons.math3.distribution.UniformRealDistribution;
 import org.apache.log4j.Logger;
 
 import com.google.common.collect.Lists;
@@ -63,6 +58,49 @@ public class UnconstrainedTaskPlacer implements TaskPlacer {
 
   private double probeRatio;
   private String workerSpeedMap;
+  private List<InetSocketAddress> globalNodeList = Lists.newArrayList();
+  private ArrayList<Double> globalWorkerSpeedList = new ArrayList<Double>();
+
+
+  //Test case in sparrow/src/test/java/edu/berkeley/sparrow/daemon/scheduler/TestPSS.java
+  public static double[] getCDFWokerSpeed(ArrayList<Double> workerSpeedList) throws IOException {
+
+    //Gets the CDF of workers Speed
+    double sum = 0;
+    for(double d : workerSpeedList)
+      sum += d;
+
+    double[] cdf_worker_speed = new double[workerSpeedList.size()];
+    double cdf = 0;
+    int j = 0;
+    for (double d: workerSpeedList){
+      d = d/sum;
+      cdf= cdf+ d;
+      cdf_worker_speed[j] = cdf;
+      j++;
+    }
+    //CDF of worker speed + PSS based on Qiong's python pss file
+    return cdf_worker_speed;
+  }
+
+  //Test case in sparrow/src/test/java/edu/berkeley/sparrow/daemon/scheduler/TestPSS.java
+  //Gets index  where cdf allows retrieving index having higher workerspeed with higher probability
+  public static int getIndexFromPSS(double[] cdf_worker_speed){
+    UniformRealDistribution uniformRealDistribution = new UniformRealDistribution();
+    int workerIndexReservation= java.util.Arrays.binarySearch(cdf_worker_speed, uniformRealDistribution.sample());
+    if(workerIndexReservation == -1){
+      workerIndexReservation = 0;
+    } else{
+      workerIndexReservation = Math.abs(workerIndexReservation) -1;
+    }
+    //This doesn't allow probing the same nodemonitor twice
+//    if(workerIndex.contains(workerIndexReservation)){
+    //     workerIndexReservation = getUniqueReservations(cdf_worker_speed, workerIndex);
+    //   }
+    return workerIndexReservation;
+  }
+
+
 
   UnconstrainedTaskPlacer(String requestId, double probeRatio, String workerSpeedMap) {
     this.requestId = requestId;
@@ -72,24 +110,84 @@ public class UnconstrainedTaskPlacer implements TaskPlacer {
     outstandingReservations = new HashMap<THostPort, Integer>();
     cancelled = false;
   }
-
+  // Have replaced Test cases with empty. Might need to change later.
   @Override
   public Map<InetSocketAddress, TEnqueueTaskReservationsRequest>
       getEnqueueTaskReservationsRequests(
           TSchedulingRequest schedulingRequest, String requestId,
-          Collection<InetSocketAddress> nodes, THostPort schedulerAddress) {
+          Collection<InetSocketAddress> nodes, THostPort schedulerAddress, String workSpeedMap) {
     LOG.debug(Logging.functionCall(schedulingRequest, requestId, nodes, schedulerAddress));
+
+
+    // Get a random subset of nodes by shuffling list.
+    List<InetSocketAddress> nodeList = Lists.newArrayList(nodes);
+    List<InetSocketAddress> subNodeList = new ArrayList<InetSocketAddress>();
+    ArrayList<Double> workerSpeedList = new ArrayList<Double>();
+    List<InetSocketAddress> newNodeList = Lists.newArrayList();
+
+    if(globalNodeList.size()==0 || globalWorkerSpeedList.size() ==0) {
+
+      //Find a way to get the arrayList from one place instead of computing everytime
+      workSpeedMap = workSpeedMap.substring(1, workSpeedMap.length() - 1);           //remove curly brackets
+      String[] keyValuePairs = workSpeedMap.split(",");              //split the string to create key-value pairs
+      ArrayList<String> backendList = new ArrayList<String>();
+
+      for (String pair : keyValuePairs)                        //iterate over the pairs
+      {
+        String[] entry = pair.split("=");                   //split the pairs to get key and value
+        backendList.add((String) entry[0].trim());
+        workerSpeedList.add(Double.valueOf((String) entry[1].trim()));
+      }
+
+      //Sorting to match the index
+      for (String bNode : backendList) {
+        for (InetSocketAddress node : nodeList) {
+          if (node.getAddress().getHostAddress().equalsIgnoreCase(bNode)) {
+            newNodeList.add(node);
+          }
+        }
+      }
+      globalNodeList=newNodeList;
+      globalWorkerSpeedList = workerSpeedList;
+    }else{
+      newNodeList=globalNodeList;
+      workerSpeedList = globalWorkerSpeedList;
+    }
+    double[] cdf_worker_speed = new double[newNodeList.size()];
+
+    try {
+      //gets cdf of worker speed in the range of 0 to 1
+      cdf_worker_speed = getCDFWokerSpeed(workerSpeedList);
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+
+    //This was used to make sure probes aren't sent to same worker
+    //TODO need to verify if we are allowing this
+    ArrayList<Integer> workerIndex = new ArrayList<Integer>();
 
     int numTasks = schedulingRequest.getTasks().size();
     int reservationsToLaunch = (int) Math.ceil(probeRatio * numTasks);
     LOG.debug("Request " + requestId + ": Creating " + reservationsToLaunch +
-              " task reservations for " + numTasks + " tasks");
+            " task reservations for " + numTasks + " tasks");
 
-    // Get a random subset of nodes by shuffling list.
-    List<InetSocketAddress> nodeList = Lists.newArrayList(nodes);
-    Collections.shuffle(nodeList);
-    if (reservationsToLaunch < nodeList.size())
-      nodeList = nodeList.subList(0, reservationsToLaunch);
+//    Collections.shuffle(nodeList);
+//    if (reservationsToLaunch < nodeList.size())
+//      nodeList = nodeList.subList(0, reservationsToLaunch);
+    if (nodes.size() > reservationsToLaunch) {
+      for (int i = 0; i < reservationsToLaunch; i++) {
+        int workerIndexReservation = getIndexFromPSS(cdf_worker_speed);
+        workerIndex.add(workerIndexReservation); //Chosen workers based on proportional sampling
+      }
+
+      //After PSS, we're getting the index of worker with higher probability
+      //Nodelist contains the list of workers and workerIndex contains indices from that node list
+      //So this comparision should make sense but using hashmap would be a better idea.
+      for (int j = 0; j < workerIndex.size(); j++) {
+        subNodeList.add(newNodeList.get(workerIndex.get(j)));
+      }
+      nodeList = subNodeList;
+    }
 
     for (TTaskSpec task : schedulingRequest.getTasks()) {
       TTaskLaunchSpec taskLaunchSpec = new TTaskLaunchSpec(task.getTaskId(),

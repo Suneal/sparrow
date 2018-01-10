@@ -230,7 +230,7 @@ public class SimpleFrontend implements FrontendService.Iface {
       //Get Arrival Period for individual task
       long arrivalPeriodMillis = (long)(tasksPerJob/arrivalRate);
       //Get Experiment duration based on no. of tasks (in s)
-      experimentDurationS = (int)((totalNoOfTasks) *(arrivalPeriodMillis+2)/(1000*tasksPerJob))+10000;
+      experimentDurationS = (int)((totalNoOfTasks) *(arrivalPeriodMillis+2)/(1000*tasksPerJob))+10000; //Until all tasks finish
       LOG.debug("Using arrival period of " + arrivalPeriodMillis +
               " milliseconds and running experiment for " + experimentDurationS + " seconds.");
 
