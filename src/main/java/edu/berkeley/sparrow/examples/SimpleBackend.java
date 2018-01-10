@@ -17,7 +17,11 @@
 package edu.berkeley.sparrow.examples;
 
 import java.io.IOException;
+import java.io.StringReader;
+import java.net.Inet4Address;
 import java.nio.ByteBuffer;
+import java.util.Map;
+import java.util.Properties;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -65,6 +69,10 @@ public class SimpleBackend implements BackendService.Iface {
   private static String NODE_MONITOR_PORT = "node_monitor_port";
 
   private static Client client;
+  private static String workSpeed;
+  private static String SLAVES = "slaves";
+  private static Double hostWorkSpeed = -1.0; //Initialization. The value will be replaced
+  private static String thisHost = "";
 
   private static final Logger LOG = Logger.getLogger(SimpleBackend.class);
   private static final ExecutorService executor =
@@ -108,8 +116,11 @@ public class SimpleBackend implements BackendService.Iface {
   private class TaskRunnable implements Runnable {
     private double taskDurationMillis;
     private TFullTaskId taskId;
+      private long taskStartTime;
+
 
     public TaskRunnable(String requestId, TFullTaskId taskId, ByteBuffer message) {
+      this.taskStartTime = message.getLong();
       this.taskDurationMillis = message.getDouble();
       this.taskId = taskId;
     }
@@ -117,13 +128,23 @@ public class SimpleBackend implements BackendService.Iface {
     @Override
     public void run() {
       long startTime = System.currentTimeMillis();
-      System.out.println(taskDurationMillis);
+
       try {
-        Thread.sleep((long)taskDurationMillis);
+          long sleepTime = (long) ((Double.valueOf(taskDurationMillis) / Double.valueOf(hostWorkSpeed)));
+
+          Thread.sleep(sleepTime);
+
+        LOG.debug("WS: " + hostWorkSpeed + "ms" + ";  Host: " + thisHost + "; sleepTime: " + sleepTime + "; taskDuration " + taskDurationMillis);
+
       } catch (InterruptedException e) {
         LOG.error("Interrupted while sleeping: " + e.getMessage());
       }
-      LOG.debug("Task completed in " + (System.currentTimeMillis() - startTime) + "ms");
+
+        LOG.debug("Actual task in " + (taskDurationMillis) + "ms");
+        LOG.debug("Task completed in " + (System.currentTimeMillis() - startTime) + "ms");
+        LOG.debug("ResponseTime in " + (System.currentTimeMillis() - taskStartTime) + "ms");
+        LOG.debug("WaitingTime in " + (startTime - taskStartTime) + "ms");
+      //LOG.debug("Task completed in " + (System.currentTimeMillis() - startTime) + "ms");
       finishedTasks.add(taskId);
     }
   }
@@ -164,6 +185,8 @@ public class SimpleBackend implements BackendService.Iface {
     OptionParser parser = new OptionParser();
     parser.accepts("c", "configuration file").
       withRequiredArg().ofType(String.class);
+    parser.accepts("w", "configuration file").
+            withRequiredArg().ofType(String.class);
     parser.accepts("help", "print help statement");
     OptionSet options = parser.parse(args);
 
@@ -185,6 +208,40 @@ public class SimpleBackend implements BackendService.Iface {
         conf = new PropertiesConfiguration(configFile);
       } catch (ConfigurationException e) {}
     }
+
+    //Use this flag to retrieve the backend and worker speed mapping
+    Configuration slavesConfig = new PropertiesConfiguration();
+    if (options.has("w")) {
+      String configFile = (String) options.valueOf("w");
+      try {
+        slavesConfig = new PropertiesConfiguration(configFile);
+      } catch (ConfigurationException e) {
+      }
+    }
+
+    if (!slavesConfig.containsKey(SLAVES)) {
+      throw new RuntimeException("Missing configuration node monitor list");
+    }
+
+    //Creates a string which can be parse to compare with respective host IP
+    workSpeed = "";
+    for (String node : slavesConfig.getStringArray(SLAVES)) {
+      workSpeed = workSpeed + node + ",";
+    }
+
+    String thisHost = Inet4Address.getLocalHost().getHostAddress();
+
+
+    //Getting rid of repeated parsing of the string
+
+    Properties props = new Properties();
+    props.load(new StringReader(workSpeed.replace(",", "\n")));
+    for (Map.Entry<Object, Object> e : props.entrySet()) {
+        if ((String.valueOf(e.getKey())).equals(thisHost)) {
+            hostWorkSpeed = Double.valueOf((String) e.getValue());
+        }
+    }
+
     // Start backend server
     SimpleBackend protoBackend = new SimpleBackend();
     BackendService.Processor<BackendService.Iface> processor =
