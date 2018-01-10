@@ -62,10 +62,12 @@ public class UnconstrainedTaskPlacer implements TaskPlacer {
   String requestId;
 
   private double probeRatio;
+  private String workerSpeedMap;
 
-  UnconstrainedTaskPlacer(String requestId, double probeRatio) {
+  UnconstrainedTaskPlacer(String requestId, double probeRatio, String workerSpeedMap) {
     this.requestId = requestId;
     this.probeRatio = probeRatio;
+    this.workerSpeedMap = workerSpeedMap;
     unlaunchedTasks = new LinkedList<TTaskLaunchSpec>();
     outstandingReservations = new HashMap<THostPort, Integer>();
     cancelled = false;

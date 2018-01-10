@@ -312,6 +312,8 @@ public class Scheduler {
     }
 
     String app = request.getApp();
+    String workerSpeedMap = request.getWorkSpeedMap();
+
     List<TTaskSpec> tasks = request.getTasks();
     Set<InetSocketAddress> backends = state.getBackends(app);
     LOG.debug("NumBackends: " + backends.size());
@@ -341,9 +343,9 @@ public class Scheduler {
       }
     } else {
       if (request.isSetProbeRatio()) {
-        taskPlacer = new UnconstrainedTaskPlacer(requestId, request.getProbeRatio());
+        taskPlacer = new UnconstrainedTaskPlacer(requestId, request.getProbeRatio(), workerSpeedMap);
       } else {
-        taskPlacer = new UnconstrainedTaskPlacer(requestId, defaultProbeRatioUnconstrained);
+        taskPlacer = new UnconstrainedTaskPlacer(requestId, defaultProbeRatioUnconstrained, workerSpeedMap);
       }
     }
     requestTaskPlacers.put(requestId, taskPlacer);
