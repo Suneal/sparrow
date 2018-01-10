@@ -221,8 +221,8 @@ public class SimpleFrontend implements FrontendService.Iface {
       */
 
     //Using earlier calculated worker speed generated using above commented code.
-      double[]  final_worker_speeds = new double[]{1.0, 1.0, 1.0, 0.01, 0.109, 0.406, 1.0, 1.0, 1.0, 1.0};
-
+//      double[]  final_worker_speeds = new double[]{1.0, 1.0, 1.0, 0.01, 0.109, 0.406, 1.0, 1.0, 1.0, 1.0};
+      double[] final_worker_speeds = new double[]{0.38125, 1.0, 0.17499999999999996, 0.38125, 1.0, 0.07187499999999998, 0.01, 0.38125, 1.0, 1.0};
       //Create HashMap of Host Name with Worker Speed
       int i = 0;
       for (String node: conf.getStringArray(SparrowConf.STATIC_NODE_MONITORS)) {
@@ -242,7 +242,7 @@ public class SimpleFrontend implements FrontendService.Iface {
       //Get Arrival Period for individual task
       long arrivalPeriodMillis = (long)(tasksPerJob/arrivalRate);
       //Get Experiment duration based on no. of tasks (in s)
-      experimentDurationS = (int)((totalNoOfTasks) *(arrivalPeriodMillis+2)/(1000*tasksPerJob));
+      experimentDurationS = (int)((totalNoOfTasks) *(arrivalPeriodMillis+2)/(1000*tasksPerJob)) + 1000;
 
 //    TOTAL_NO_OF_TASKS= (int) ((experimentDurationS*1000/ arrivalPeriodMillis)  * tasksPerJob+ 1);
 
