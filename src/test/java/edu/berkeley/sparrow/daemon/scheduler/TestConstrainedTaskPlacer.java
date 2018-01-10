@@ -54,6 +54,8 @@ public class TestConstrainedTaskPlacer {
   private static final Set<InetSocketAddress> preferredNodes = new HashSet<InetSocketAddress>();
   private static final Set<InetSocketAddress> allBackends = new HashSet<InetSocketAddress>();
 
+  private static final String workerSpeedMap="";
+
   @Before
   public void setUp() {
     // Set up a simple configuration that logs on the console.
@@ -115,7 +117,7 @@ public class TestConstrainedTaskPlacer {
       tasks.add(new TTaskSpec(id, placementPreference, message));
     }
 
-    TSchedulingRequest schedulingRequest = new TSchedulingRequest(APP_ID, tasks, user);
+    TSchedulingRequest schedulingRequest = new TSchedulingRequest(APP_ID, tasks, user , workerSpeedMap);
 
     // Create list of available backend nodes, with some additional nodes in addition to the
     // preferred ones.
@@ -132,7 +134,8 @@ public class TestConstrainedTaskPlacer {
    */
   @Test
   public void testGetEnqueueTaskReservationsRequestsSingleTask() {
-    ConstrainedTaskPlacer taskPlacer = new ConstrainedTaskPlacer(REQUEST_ID, 2);
+
+    ConstrainedTaskPlacer taskPlacer = new ConstrainedTaskPlacer(REQUEST_ID, 2, workerSpeedMap);
 
     preferredNodes.add(new InetSocketAddress("127.0.0.1", 22));
     preferredNodes.add(new InetSocketAddress("123.4.5.6", 20000));
@@ -149,7 +152,7 @@ public class TestConstrainedTaskPlacer {
     // Create the scheduling request.
     List<TTaskSpec> tasks = new ArrayList<TTaskSpec>();
     tasks.add(task);
-    TSchedulingRequest schedulingRequest = new TSchedulingRequest(APP_ID, tasks, user);
+    TSchedulingRequest schedulingRequest = new TSchedulingRequest(APP_ID, tasks, user, workerSpeedMap);
 
     // Create a set of backends, including all of the preferred nodes and some extra nodes too.
     allBackends.add(new InetSocketAddress("3.4.5.6", 174));
@@ -176,7 +179,7 @@ public class TestConstrainedTaskPlacer {
     TSchedulingRequest schedulingRequest = generateSchedulingRequests();
 
     for (int i = 0; i < ITERATIONS; ++i) {
-      ConstrainedTaskPlacer taskPlacer = new ConstrainedTaskPlacer(REQUEST_ID, 2);
+      ConstrainedTaskPlacer taskPlacer = new ConstrainedTaskPlacer(REQUEST_ID, 2, workerSpeedMap);
 
       Map<InetSocketAddress, TEnqueueTaskReservationsRequest> requests =
           taskPlacer.getEnqueueTaskReservationsRequests(schedulingRequest, REQUEST_ID,
@@ -291,7 +294,7 @@ public class TestConstrainedTaskPlacer {
     tasks.add(new TTaskSpec(unconstrainedTaskId, null, message));
 
     TUserGroupInfo user = new TUserGroupInfo(USER, GROUP, PRIORITY);
-    TSchedulingRequest schedulingRequest = new TSchedulingRequest(APP_ID, tasks, user);
+    TSchedulingRequest schedulingRequest = new TSchedulingRequest(APP_ID, tasks, user, workerSpeedMap);
 
     // Create list of available backend nodes, with some additional nodes in additional to the
     // preferred ones.
@@ -300,7 +303,7 @@ public class TestConstrainedTaskPlacer {
     backendNodes.add(new InetSocketAddress("5.6.7.81", 2000));
 
     for (int i = 0; i < ITERATIONS; ++i) {
-      ConstrainedTaskPlacer taskPlacer = new ConstrainedTaskPlacer(REQUEST_ID, 2);
+      ConstrainedTaskPlacer taskPlacer = new ConstrainedTaskPlacer(REQUEST_ID, 2, workerSpeedMap);
 
       Map<InetSocketAddress, TEnqueueTaskReservationsRequest> requests =
           taskPlacer.getEnqueueTaskReservationsRequests(schedulingRequest, REQUEST_ID,

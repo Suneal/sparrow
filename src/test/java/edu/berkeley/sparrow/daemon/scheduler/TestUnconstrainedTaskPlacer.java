@@ -53,6 +53,7 @@ public class TestUnconstrainedTaskPlacer {
   private static final double PROBE_RATIO = 1.5;
   private static TUserGroupInfo user = new TUserGroupInfo(USER, GROUP, PRIORITY);
   private static List<TTaskSpec> tasks;
+  private static final String workerSpeedMap="";
   Set<String> taskIds;
   private static List<InetSocketAddress> backendNodes;
 
@@ -92,11 +93,11 @@ public class TestUnconstrainedTaskPlacer {
       tasks.add(new TTaskSpec(id, placementPreference, message));
     }
 
-    TSchedulingRequest schedulingRequest = new TSchedulingRequest(APP_ID, tasks, user);
+    TSchedulingRequest schedulingRequest = new TSchedulingRequest(APP_ID, tasks, user, workerSpeedMap);
     
     final int NUM_ITERATIONS = 100;
     for (int i = 0; i < NUM_ITERATIONS; ++i) {
-      UnconstrainedTaskPlacer taskPlacer = new UnconstrainedTaskPlacer(REQUEST_ID, PROBE_RATIO);
+      UnconstrainedTaskPlacer taskPlacer = new UnconstrainedTaskPlacer(REQUEST_ID, PROBE_RATIO, workerSpeedMap);
 
       Map<InetSocketAddress, TEnqueueTaskReservationsRequest> requests =
           taskPlacer.getEnqueueTaskReservationsRequests(schedulingRequest, REQUEST_ID, backendNodes,
@@ -128,11 +129,12 @@ public class TestUnconstrainedTaskPlacer {
    */
   @Test
   public void sanityCheckEnqueueTaskReservations() {
-    TSchedulingRequest schedulingRequest = new TSchedulingRequest(APP_ID, tasks, user);
+
+    TSchedulingRequest schedulingRequest = new TSchedulingRequest(APP_ID, tasks, user, workerSpeedMap);
 
     final int NUM_ITERATIONS = 100;
     for (int i = 0; i < NUM_ITERATIONS; ++i) {
-      UnconstrainedTaskPlacer taskPlacer = new UnconstrainedTaskPlacer(REQUEST_ID, PROBE_RATIO);
+      UnconstrainedTaskPlacer taskPlacer = new UnconstrainedTaskPlacer(REQUEST_ID, PROBE_RATIO, workerSpeedMap);
 
       Map<InetSocketAddress, TEnqueueTaskReservationsRequest> requests =
           taskPlacer.getEnqueueTaskReservationsRequests(schedulingRequest, REQUEST_ID, backendNodes,
@@ -161,12 +163,13 @@ public class TestUnconstrainedTaskPlacer {
    */
   @Test
   public void testAssignTask() {
-    TSchedulingRequest schedulingRequest = new TSchedulingRequest(APP_ID, tasks, user);
+
+    TSchedulingRequest schedulingRequest = new TSchedulingRequest(APP_ID, tasks, user, workerSpeedMap);
 
     final int numIterations = 100;
     final int expectedReservations = 3;
     for (int i = 0; i < numIterations; ++i) {
-      UnconstrainedTaskPlacer taskPlacer = new UnconstrainedTaskPlacer(REQUEST_ID, PROBE_RATIO);
+      UnconstrainedTaskPlacer taskPlacer = new UnconstrainedTaskPlacer(REQUEST_ID, PROBE_RATIO, workerSpeedMap);
 
       Map<InetSocketAddress, TEnqueueTaskReservationsRequest> requests =
           taskPlacer.getEnqueueTaskReservationsRequests(schedulingRequest, REQUEST_ID, backendNodes,
@@ -204,12 +207,13 @@ public class TestUnconstrainedTaskPlacer {
    */
   @Test
   public void testAllTasksPlaced() {
-    TSchedulingRequest schedulingRequest = new TSchedulingRequest(APP_ID, tasks, user);
+
+    TSchedulingRequest schedulingRequest = new TSchedulingRequest(APP_ID, tasks, user, workerSpeedMap);
 
     final int numIterations = 100;
     final int expectedReservations = 3;
     for (int i = 0; i < numIterations; ++i) {
-      UnconstrainedTaskPlacer taskPlacer = new UnconstrainedTaskPlacer(REQUEST_ID, PROBE_RATIO);
+      UnconstrainedTaskPlacer taskPlacer = new UnconstrainedTaskPlacer(REQUEST_ID, PROBE_RATIO, workerSpeedMap);
 
       Map<InetSocketAddress, TEnqueueTaskReservationsRequest> requests =
           taskPlacer.getEnqueueTaskReservationsRequests(schedulingRequest, REQUEST_ID, backendNodes,
@@ -245,11 +249,12 @@ public class TestUnconstrainedTaskPlacer {
 
   @Test
   public void testCancellation() {
-    TSchedulingRequest schedulingRequest = new TSchedulingRequest(APP_ID, tasks, user);
+
+    TSchedulingRequest schedulingRequest = new TSchedulingRequest(APP_ID, tasks, user, workerSpeedMap);
 
     final int numIterations = 100;
     for (int i = 0; i < numIterations; ++i) {
-      UnconstrainedTaskPlacer taskPlacer = new UnconstrainedTaskPlacer(REQUEST_ID, PROBE_RATIO);
+      UnconstrainedTaskPlacer taskPlacer = new UnconstrainedTaskPlacer(REQUEST_ID, PROBE_RATIO, workerSpeedMap);
       Map<InetSocketAddress, TEnqueueTaskReservationsRequest> requests =
           taskPlacer.getEnqueueTaskReservationsRequests(schedulingRequest, REQUEST_ID, backendNodes,
               SCHEDULER_ADDRESS, "");
