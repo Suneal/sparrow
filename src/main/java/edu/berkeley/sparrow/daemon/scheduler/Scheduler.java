@@ -337,9 +337,9 @@ public class Scheduler {
     TaskPlacer taskPlacer;
     if (constrained) {
       if (request.isSetProbeRatio()) {
-        taskPlacer = new ConstrainedTaskPlacer(requestId, request.getProbeRatio());
+        taskPlacer = new ConstrainedTaskPlacer(requestId, request.getProbeRatio(), workerSpeedMap);
       } else {
-        taskPlacer = new ConstrainedTaskPlacer(requestId, defaultProbeRatioConstrained);
+        taskPlacer = new ConstrainedTaskPlacer(requestId, defaultProbeRatioConstrained, workerSpeedMap);
       }
     } else {
       if (request.isSetProbeRatio()) {

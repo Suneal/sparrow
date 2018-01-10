@@ -83,7 +83,7 @@ public class ConstrainedTaskPlacer implements TaskPlacer {
    */
   List<TTaskLaunchSpec> unlaunchedUnconstrainedTasks;
 
-  ConstrainedTaskPlacer(String requestId, double probeRatio){
+  ConstrainedTaskPlacer(String requestId, double probeRatio, String workSpeed){
     this.requestId = requestId;
     this.probeRatio = probeRatio;
     launchedConstrainedTasks = new HashSet<TTaskLaunchSpec>();
@@ -92,11 +92,14 @@ public class ConstrainedTaskPlacer implements TaskPlacer {
     outstandingReservations = new HashMap<THostPort, Integer>();
   }
 
+
+
+  //TODO handle workspeed for constrained
   @Override
   public Map<InetSocketAddress, TEnqueueTaskReservationsRequest>
   getEnqueueTaskReservationsRequests(
       TSchedulingRequest schedulingRequest, String requestId,
-      Collection<InetSocketAddress> nodes, THostPort schedulerAddress) {
+      Collection<InetSocketAddress> nodes, THostPort schedulerAddress, String workerSpeedMap) {
     LOG.debug(Logging.functionCall(schedulingRequest, requestId, nodes, schedulerAddress));
     numRemainingTasks = schedulingRequest.getTasksSize();
 
