@@ -187,7 +187,7 @@ public class SimpleBackend implements BackendService.Iface {
     if ((requestId.substring(requestId.lastIndexOf("_") + 1)).equalsIgnoreCase("100")){
       List<String> lines = Arrays.asList("Just finished Launching request"+ requestId);
       try {
-        Path file = Paths.get("/tmp/comp/finishedLaunchingFinalTask.comp");
+        Path file = Paths.get("/root/finishedLaunchingFinalTask.comp");
         Files.write(file, lines, Charset.forName("UTF-8"));
       } catch (IOException e) {
         e.printStackTrace();
