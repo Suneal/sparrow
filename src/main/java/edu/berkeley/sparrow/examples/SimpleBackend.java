@@ -20,6 +20,12 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.net.Inet4Address;
 import java.nio.ByteBuffer;
+import java.nio.charset.Charset;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.BlockingQueue;
@@ -176,6 +182,17 @@ public class SimpleBackend implements BackendService.Iface {
   public void launchTask(ByteBuffer message, TFullTaskId taskId,
       TUserGroupInfo user) throws TException {
     LOG.info("Submitting task " + taskId.getTaskId() + " at " + System.currentTimeMillis());
+
+    String requestId = taskId.getRequestId();
+    if ((requestId.substring(requestId.lastIndexOf("_") + 1)).equalsIgnoreCase("100")){
+      List<String> lines = Arrays.asList("Just finished Launching request"+ requestId);
+      try {
+        Path file = Paths.get("/tmp/comp/finishedLaunchingFinalTask.comp");
+        Files.write(file, lines, Charset.forName("UTF-8"));
+      } catch (IOException e) {
+        e.printStackTrace();
+      }
+    }
 
     executor.submit(new TaskRunnable(
         taskId.requestId, taskId, message));
