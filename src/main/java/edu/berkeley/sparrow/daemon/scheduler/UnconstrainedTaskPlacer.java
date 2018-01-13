@@ -88,10 +88,10 @@ public class UnconstrainedTaskPlacer implements TaskPlacer {
   public static int getIndexFromPSS(double[] cdf_worker_speed, ArrayList<Integer> workerIndex ){
     UniformRealDistribution uniformRealDistribution = new UniformRealDistribution();
     int workerIndexReservation= java.util.Arrays.binarySearch(cdf_worker_speed, uniformRealDistribution.sample());
-    if(workerIndexReservation == -1){
-      workerIndexReservation = 0;
-    } else{
+    if(workerIndexReservation < 0 ){
       workerIndexReservation = Math.abs(workerIndexReservation) -1;
+    } else{
+      workerIndexReservation = Math.abs(workerIndexReservation);
     }
     //This doesn't allow probing the same nodemonitor twice
     if(workerIndex.contains(workerIndexReservation)){
