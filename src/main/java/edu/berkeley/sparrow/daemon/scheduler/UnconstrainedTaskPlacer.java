@@ -85,7 +85,7 @@ public class UnconstrainedTaskPlacer implements TaskPlacer {
 
   //Test case in sparrow/src/test/java/edu/berkeley/sparrow/daemon/scheduler/TestPSS.java
   //Gets index  where cdf allows retrieving index having higher workerspeed with higher probability
-  public static int getIndexFromPSS(double[] cdf_worker_speed){
+  public static int getIndexFromPSS(double[] cdf_worker_speed, ArrayList<Integer> workerIndex ){
     UniformRealDistribution uniformRealDistribution = new UniformRealDistribution();
     int workerIndexReservation= java.util.Arrays.binarySearch(cdf_worker_speed, uniformRealDistribution.sample());
     if(workerIndexReservation == -1){
@@ -94,9 +94,9 @@ public class UnconstrainedTaskPlacer implements TaskPlacer {
       workerIndexReservation = Math.abs(workerIndexReservation) -1;
     }
     //This doesn't allow probing the same nodemonitor twice
-//    if(workerIndex.contains(workerIndexReservation)){
-    //     workerIndexReservation = getUniqueReservations(cdf_worker_speed, workerIndex);
-    //   }
+    if(workerIndex.contains(workerIndexReservation)){
+         workerIndexReservation = getIndexFromPSS(cdf_worker_speed, workerIndex);
+       }
     return workerIndexReservation;
   }
 
@@ -176,7 +176,7 @@ public class UnconstrainedTaskPlacer implements TaskPlacer {
 //      nodeList = nodeList.subList(0, reservationsToLaunch);
     if (nodes.size() > reservationsToLaunch) {
       for (int i = 0; i < reservationsToLaunch; i++) {
-        int workerIndexReservation = getIndexFromPSS(cdf_worker_speed);
+        int workerIndexReservation = getIndexFromPSS(cdf_worker_speed, workerIndex);
         workerIndex.add(workerIndexReservation); //Chosen workers based on proportional sampling
       }
 
