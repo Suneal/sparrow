@@ -153,7 +153,7 @@ public class SimpleBackend implements BackendService.Iface {
             LOG.debug("ResponseTime in " + (System.currentTimeMillis() - taskStartTime) + "ms");
             LOG.debug("WaitingTime in " + (startTime - taskStartTime) + "ms");
             //LOG.debug("Task completed in " + (System.currentTimeMillis() - startTime) + "ms");
-            finishedTasks.add(taskId);
+//            finishedTasks.add(taskId);
             ByteBuffer message = ByteBuffer.allocate(8);
             //Send the task Completion Time
             message.putDouble(11111); //Add the estimated worker speed
@@ -162,6 +162,7 @@ public class SimpleBackend implements BackendService.Iface {
             } catch (TException e) {
                 e.printStackTrace();
             }
+ finishedTasks.add(taskId);
         }
     }
 
