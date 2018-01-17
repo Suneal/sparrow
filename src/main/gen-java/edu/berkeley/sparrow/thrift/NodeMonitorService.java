@@ -40,6 +40,8 @@ public class NodeMonitorService {
 
     public void sendFrontendMessage(String app, edu.berkeley.sparrow.thrift.TFullTaskId taskId, int status, ByteBuffer message) throws org.apache.thrift.TException;
 
+    public void sendSchedulerMessage(String app, edu.berkeley.sparrow.thrift.TFullTaskId taskId, int status, ByteBuffer message, String hostAddress) throws org.apache.thrift.TException;
+
   }
 
   public interface AsyncIface {
@@ -49,6 +51,8 @@ public class NodeMonitorService {
     public void tasksFinished(List<edu.berkeley.sparrow.thrift.TFullTaskId> tasks, org.apache.thrift.async.AsyncMethodCallback<AsyncClient.tasksFinished_call> resultHandler) throws org.apache.thrift.TException;
 
     public void sendFrontendMessage(String app, edu.berkeley.sparrow.thrift.TFullTaskId taskId, int status, ByteBuffer message, org.apache.thrift.async.AsyncMethodCallback<AsyncClient.sendFrontendMessage_call> resultHandler) throws org.apache.thrift.TException;
+
+    public void sendSchedulerMessage(String app, edu.berkeley.sparrow.thrift.TFullTaskId taskId, int status, ByteBuffer message, String hostAddress, org.apache.thrift.async.AsyncMethodCallback<AsyncClient.sendSchedulerMessage_call> resultHandler) throws org.apache.thrift.TException;
 
   }
 
@@ -136,6 +140,30 @@ public class NodeMonitorService {
     {
       sendFrontendMessage_result result = new sendFrontendMessage_result();
       receiveBase(result, "sendFrontendMessage");
+      return;
+    }
+
+    public void sendSchedulerMessage(String app, edu.berkeley.sparrow.thrift.TFullTaskId taskId, int status, ByteBuffer message, String hostAddress) throws org.apache.thrift.TException
+    {
+      send_sendSchedulerMessage(app, taskId, status, message, hostAddress);
+      recv_sendSchedulerMessage();
+    }
+
+    public void send_sendSchedulerMessage(String app, edu.berkeley.sparrow.thrift.TFullTaskId taskId, int status, ByteBuffer message, String hostAddress) throws org.apache.thrift.TException
+    {
+      sendSchedulerMessage_args args = new sendSchedulerMessage_args();
+      args.setApp(app);
+      args.setTaskId(taskId);
+      args.setStatus(status);
+      args.setMessage(message);
+      args.setHostAddress(hostAddress);
+      sendBase("sendSchedulerMessage", args);
+    }
+
+    public void recv_sendSchedulerMessage() throws org.apache.thrift.TException
+    {
+      sendSchedulerMessage_result result = new sendSchedulerMessage_result();
+      receiveBase(result, "sendSchedulerMessage");
       return;
     }
 
@@ -265,6 +293,50 @@ public class NodeMonitorService {
       }
     }
 
+    public void sendSchedulerMessage(String app, edu.berkeley.sparrow.thrift.TFullTaskId taskId, int status, ByteBuffer message, String hostAddress, org.apache.thrift.async.AsyncMethodCallback<sendSchedulerMessage_call> resultHandler) throws org.apache.thrift.TException {
+      checkReady();
+      sendSchedulerMessage_call method_call = new sendSchedulerMessage_call(app, taskId, status, message, hostAddress, resultHandler, this, ___protocolFactory, ___transport);
+      this.___currentMethod = method_call;
+      ___manager.call(method_call);
+    }
+
+    public static class sendSchedulerMessage_call extends org.apache.thrift.async.TAsyncMethodCall {
+      private String app;
+      private edu.berkeley.sparrow.thrift.TFullTaskId taskId;
+      private int status;
+      private ByteBuffer message;
+      private String hostAddress;
+      public sendSchedulerMessage_call(String app, edu.berkeley.sparrow.thrift.TFullTaskId taskId, int status, ByteBuffer message, String hostAddress, org.apache.thrift.async.AsyncMethodCallback<sendSchedulerMessage_call> resultHandler, org.apache.thrift.async.TAsyncClient client, org.apache.thrift.protocol.TProtocolFactory protocolFactory, org.apache.thrift.transport.TNonblockingTransport transport) throws org.apache.thrift.TException {
+        super(client, protocolFactory, transport, resultHandler, false);
+        this.app = app;
+        this.taskId = taskId;
+        this.status = status;
+        this.message = message;
+        this.hostAddress = hostAddress;
+      }
+
+      public void write_args(org.apache.thrift.protocol.TProtocol prot) throws org.apache.thrift.TException {
+        prot.writeMessageBegin(new org.apache.thrift.protocol.TMessage("sendSchedulerMessage", org.apache.thrift.protocol.TMessageType.CALL, 0));
+        sendSchedulerMessage_args args = new sendSchedulerMessage_args();
+        args.setApp(app);
+        args.setTaskId(taskId);
+        args.setStatus(status);
+        args.setMessage(message);
+        args.setHostAddress(hostAddress);
+        args.write(prot);
+        prot.writeMessageEnd();
+      }
+
+      public void getResult() throws org.apache.thrift.TException {
+        if (getState() != org.apache.thrift.async.TAsyncMethodCall.State.RESPONSE_READ) {
+          throw new IllegalStateException("Method call not finished!");
+        }
+        org.apache.thrift.transport.TMemoryInputTransport memoryTransport = new org.apache.thrift.transport.TMemoryInputTransport(getFrameBuffer().array());
+        org.apache.thrift.protocol.TProtocol prot = client.getProtocolFactory().getProtocol(memoryTransport);
+        (new Client(prot)).recv_sendSchedulerMessage();
+      }
+    }
+
   }
 
   public static class Processor<I extends Iface> extends org.apache.thrift.TBaseProcessor<I> implements org.apache.thrift.TProcessor {
@@ -281,6 +353,7 @@ public class NodeMonitorService {
       processMap.put("registerBackend", new registerBackend());
       processMap.put("tasksFinished", new tasksFinished());
       processMap.put("sendFrontendMessage", new sendFrontendMessage());
+      processMap.put("sendSchedulerMessage", new sendSchedulerMessage());
       return processMap;
     }
 
@@ -341,6 +414,26 @@ public class NodeMonitorService {
       public sendFrontendMessage_result getResult(I iface, sendFrontendMessage_args args) throws org.apache.thrift.TException {
         sendFrontendMessage_result result = new sendFrontendMessage_result();
         iface.sendFrontendMessage(args.app, args.taskId, args.status, args.message);
+        return result;
+      }
+    }
+
+    public static class sendSchedulerMessage<I extends Iface> extends org.apache.thrift.ProcessFunction<I, sendSchedulerMessage_args> {
+      public sendSchedulerMessage() {
+        super("sendSchedulerMessage");
+      }
+
+      public sendSchedulerMessage_args getEmptyArgsInstance() {
+        return new sendSchedulerMessage_args();
+      }
+
+      protected boolean isOneway() {
+        return false;
+      }
+
+      public sendSchedulerMessage_result getResult(I iface, sendSchedulerMessage_args args) throws org.apache.thrift.TException {
+        sendSchedulerMessage_result result = new sendSchedulerMessage_result();
+        iface.sendSchedulerMessage(args.app, args.taskId, args.status, args.message, args.hostAddress);
         return result;
       }
     }
@@ -2711,6 +2804,1018 @@ public class NodeMonitorService {
 
       @Override
       public void read(org.apache.thrift.protocol.TProtocol prot, sendFrontendMessage_result struct) throws org.apache.thrift.TException {
+        TTupleProtocol iprot = (TTupleProtocol) prot;
+      }
+    }
+
+  }
+
+  public static class sendSchedulerMessage_args implements org.apache.thrift.TBase<sendSchedulerMessage_args, sendSchedulerMessage_args._Fields>, java.io.Serializable, Cloneable   {
+    private static final org.apache.thrift.protocol.TStruct STRUCT_DESC = new org.apache.thrift.protocol.TStruct("sendSchedulerMessage_args");
+
+    private static final org.apache.thrift.protocol.TField APP_FIELD_DESC = new org.apache.thrift.protocol.TField("app", org.apache.thrift.protocol.TType.STRING, (short)1);
+    private static final org.apache.thrift.protocol.TField TASK_ID_FIELD_DESC = new org.apache.thrift.protocol.TField("taskId", org.apache.thrift.protocol.TType.STRUCT, (short)2);
+    private static final org.apache.thrift.protocol.TField STATUS_FIELD_DESC = new org.apache.thrift.protocol.TField("status", org.apache.thrift.protocol.TType.I32, (short)3);
+    private static final org.apache.thrift.protocol.TField MESSAGE_FIELD_DESC = new org.apache.thrift.protocol.TField("message", org.apache.thrift.protocol.TType.STRING, (short)4);
+    private static final org.apache.thrift.protocol.TField HOST_ADDRESS_FIELD_DESC = new org.apache.thrift.protocol.TField("hostAddress", org.apache.thrift.protocol.TType.STRING, (short)5);
+
+    private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
+    static {
+      schemes.put(StandardScheme.class, new sendSchedulerMessage_argsStandardSchemeFactory());
+      schemes.put(TupleScheme.class, new sendSchedulerMessage_argsTupleSchemeFactory());
+    }
+
+    public String app; // required
+    public edu.berkeley.sparrow.thrift.TFullTaskId taskId; // required
+    public int status; // required
+    public ByteBuffer message; // required
+    public String hostAddress; // required
+
+    /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
+    public enum _Fields implements org.apache.thrift.TFieldIdEnum {
+      APP((short)1, "app"),
+      TASK_ID((short)2, "taskId"),
+      STATUS((short)3, "status"),
+      MESSAGE((short)4, "message"),
+      HOST_ADDRESS((short)5, "hostAddress");
+
+      private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
+
+      static {
+        for (_Fields field : EnumSet.allOf(_Fields.class)) {
+          byName.put(field.getFieldName(), field);
+        }
+      }
+
+      /**
+       * Find the _Fields constant that matches fieldId, or null if its not found.
+       */
+      public static _Fields findByThriftId(int fieldId) {
+        switch(fieldId) {
+          case 1: // APP
+            return APP;
+          case 2: // TASK_ID
+            return TASK_ID;
+          case 3: // STATUS
+            return STATUS;
+          case 4: // MESSAGE
+            return MESSAGE;
+          case 5: // HOST_ADDRESS
+            return HOST_ADDRESS;
+          default:
+            return null;
+        }
+      }
+
+      /**
+       * Find the _Fields constant that matches fieldId, throwing an exception
+       * if it is not found.
+       */
+      public static _Fields findByThriftIdOrThrow(int fieldId) {
+        _Fields fields = findByThriftId(fieldId);
+        if (fields == null) throw new IllegalArgumentException("Field " + fieldId + " doesn't exist!");
+        return fields;
+      }
+
+      /**
+       * Find the _Fields constant that matches name, or null if its not found.
+       */
+      public static _Fields findByName(String name) {
+        return byName.get(name);
+      }
+
+      private final short _thriftId;
+      private final String _fieldName;
+
+      _Fields(short thriftId, String fieldName) {
+        _thriftId = thriftId;
+        _fieldName = fieldName;
+      }
+
+      public short getThriftFieldId() {
+        return _thriftId;
+      }
+
+      public String getFieldName() {
+        return _fieldName;
+      }
+    }
+
+    // isset id assignments
+    private static final int __STATUS_ISSET_ID = 0;
+    private byte __isset_bitfield = 0;
+    public static final Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
+    static {
+      Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
+      tmpMap.put(_Fields.APP, new org.apache.thrift.meta_data.FieldMetaData("app", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+          new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
+      tmpMap.put(_Fields.TASK_ID, new org.apache.thrift.meta_data.FieldMetaData("taskId", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+          new org.apache.thrift.meta_data.StructMetaData(org.apache.thrift.protocol.TType.STRUCT, edu.berkeley.sparrow.thrift.TFullTaskId.class)));
+      tmpMap.put(_Fields.STATUS, new org.apache.thrift.meta_data.FieldMetaData("status", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+          new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I32)));
+      tmpMap.put(_Fields.MESSAGE, new org.apache.thrift.meta_data.FieldMetaData("message", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+          new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING          , true)));
+      tmpMap.put(_Fields.HOST_ADDRESS, new org.apache.thrift.meta_data.FieldMetaData("hostAddress", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+          new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
+      metaDataMap = Collections.unmodifiableMap(tmpMap);
+      org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(sendSchedulerMessage_args.class, metaDataMap);
+    }
+
+    public sendSchedulerMessage_args() {
+    }
+
+    public sendSchedulerMessage_args(
+      String app,
+      edu.berkeley.sparrow.thrift.TFullTaskId taskId,
+      int status,
+      ByteBuffer message,
+      String hostAddress)
+    {
+      this();
+      this.app = app;
+      this.taskId = taskId;
+      this.status = status;
+      setStatusIsSet(true);
+      this.message = message;
+      this.hostAddress = hostAddress;
+    }
+
+    /**
+     * Performs a deep copy on <i>other</i>.
+     */
+    public sendSchedulerMessage_args(sendSchedulerMessage_args other) {
+      __isset_bitfield = other.__isset_bitfield;
+      if (other.isSetApp()) {
+        this.app = other.app;
+      }
+      if (other.isSetTaskId()) {
+        this.taskId = new edu.berkeley.sparrow.thrift.TFullTaskId(other.taskId);
+      }
+      this.status = other.status;
+      if (other.isSetMessage()) {
+        this.message = org.apache.thrift.TBaseHelper.copyBinary(other.message);
+;
+      }
+      if (other.isSetHostAddress()) {
+        this.hostAddress = other.hostAddress;
+      }
+    }
+
+    public sendSchedulerMessage_args deepCopy() {
+      return new sendSchedulerMessage_args(this);
+    }
+
+    public void clear() {
+      this.app = null;
+      this.taskId = null;
+      setStatusIsSet(false);
+      this.status = 0;
+      this.message = null;
+      this.hostAddress = null;
+    }
+
+    public String getApp() {
+      return this.app;
+    }
+
+    public sendSchedulerMessage_args setApp(String app) {
+      this.app = app;
+      return this;
+    }
+
+    public void unsetApp() {
+      this.app = null;
+    }
+
+    /** Returns true if field app is set (has been assigned a value) and false otherwise */
+    public boolean isSetApp() {
+      return this.app != null;
+    }
+
+    public void setAppIsSet(boolean value) {
+      if (!value) {
+        this.app = null;
+      }
+    }
+
+    public edu.berkeley.sparrow.thrift.TFullTaskId getTaskId() {
+      return this.taskId;
+    }
+
+    public sendSchedulerMessage_args setTaskId(edu.berkeley.sparrow.thrift.TFullTaskId taskId) {
+      this.taskId = taskId;
+      return this;
+    }
+
+    public void unsetTaskId() {
+      this.taskId = null;
+    }
+
+    /** Returns true if field taskId is set (has been assigned a value) and false otherwise */
+    public boolean isSetTaskId() {
+      return this.taskId != null;
+    }
+
+    public void setTaskIdIsSet(boolean value) {
+      if (!value) {
+        this.taskId = null;
+      }
+    }
+
+    public int getStatus() {
+      return this.status;
+    }
+
+    public sendSchedulerMessage_args setStatus(int status) {
+      this.status = status;
+      setStatusIsSet(true);
+      return this;
+    }
+
+    public void unsetStatus() {
+      __isset_bitfield = EncodingUtils.clearBit(__isset_bitfield, __STATUS_ISSET_ID);
+    }
+
+    /** Returns true if field status is set (has been assigned a value) and false otherwise */
+    public boolean isSetStatus() {
+      return EncodingUtils.testBit(__isset_bitfield, __STATUS_ISSET_ID);
+    }
+
+    public void setStatusIsSet(boolean value) {
+      __isset_bitfield = EncodingUtils.setBit(__isset_bitfield, __STATUS_ISSET_ID, value);
+    }
+
+    public byte[] getMessage() {
+      setMessage(org.apache.thrift.TBaseHelper.rightSize(message));
+      return message == null ? null : message.array();
+    }
+
+    public ByteBuffer bufferForMessage() {
+      return message;
+    }
+
+    public sendSchedulerMessage_args setMessage(byte[] message) {
+      setMessage(message == null ? (ByteBuffer)null : ByteBuffer.wrap(message));
+      return this;
+    }
+
+    public sendSchedulerMessage_args setMessage(ByteBuffer message) {
+      this.message = message;
+      return this;
+    }
+
+    public void unsetMessage() {
+      this.message = null;
+    }
+
+    /** Returns true if field message is set (has been assigned a value) and false otherwise */
+    public boolean isSetMessage() {
+      return this.message != null;
+    }
+
+    public void setMessageIsSet(boolean value) {
+      if (!value) {
+        this.message = null;
+      }
+    }
+
+    public String getHostAddress() {
+      return this.hostAddress;
+    }
+
+    public sendSchedulerMessage_args setHostAddress(String hostAddress) {
+      this.hostAddress = hostAddress;
+      return this;
+    }
+
+    public void unsetHostAddress() {
+      this.hostAddress = null;
+    }
+
+    /** Returns true if field hostAddress is set (has been assigned a value) and false otherwise */
+    public boolean isSetHostAddress() {
+      return this.hostAddress != null;
+    }
+
+    public void setHostAddressIsSet(boolean value) {
+      if (!value) {
+        this.hostAddress = null;
+      }
+    }
+
+    public void setFieldValue(_Fields field, Object value) {
+      switch (field) {
+      case APP:
+        if (value == null) {
+          unsetApp();
+        } else {
+          setApp((String)value);
+        }
+        break;
+
+      case TASK_ID:
+        if (value == null) {
+          unsetTaskId();
+        } else {
+          setTaskId((edu.berkeley.sparrow.thrift.TFullTaskId)value);
+        }
+        break;
+
+      case STATUS:
+        if (value == null) {
+          unsetStatus();
+        } else {
+          setStatus((Integer)value);
+        }
+        break;
+
+      case MESSAGE:
+        if (value == null) {
+          unsetMessage();
+        } else {
+          setMessage((ByteBuffer)value);
+        }
+        break;
+
+      case HOST_ADDRESS:
+        if (value == null) {
+          unsetHostAddress();
+        } else {
+          setHostAddress((String)value);
+        }
+        break;
+
+      }
+    }
+
+    public Object getFieldValue(_Fields field) {
+      switch (field) {
+      case APP:
+        return getApp();
+
+      case TASK_ID:
+        return getTaskId();
+
+      case STATUS:
+        return Integer.valueOf(getStatus());
+
+      case MESSAGE:
+        return getMessage();
+
+      case HOST_ADDRESS:
+        return getHostAddress();
+
+      }
+      throw new IllegalStateException();
+    }
+
+    /** Returns true if field corresponding to fieldID is set (has been assigned a value) and false otherwise */
+    public boolean isSet(_Fields field) {
+      if (field == null) {
+        throw new IllegalArgumentException();
+      }
+
+      switch (field) {
+      case APP:
+        return isSetApp();
+      case TASK_ID:
+        return isSetTaskId();
+      case STATUS:
+        return isSetStatus();
+      case MESSAGE:
+        return isSetMessage();
+      case HOST_ADDRESS:
+        return isSetHostAddress();
+      }
+      throw new IllegalStateException();
+    }
+
+    @Override
+    public boolean equals(Object that) {
+      if (that == null)
+        return false;
+      if (that instanceof sendSchedulerMessage_args)
+        return this.equals((sendSchedulerMessage_args)that);
+      return false;
+    }
+
+    public boolean equals(sendSchedulerMessage_args that) {
+      if (that == null)
+        return false;
+
+      boolean this_present_app = true && this.isSetApp();
+      boolean that_present_app = true && that.isSetApp();
+      if (this_present_app || that_present_app) {
+        if (!(this_present_app && that_present_app))
+          return false;
+        if (!this.app.equals(that.app))
+          return false;
+      }
+
+      boolean this_present_taskId = true && this.isSetTaskId();
+      boolean that_present_taskId = true && that.isSetTaskId();
+      if (this_present_taskId || that_present_taskId) {
+        if (!(this_present_taskId && that_present_taskId))
+          return false;
+        if (!this.taskId.equals(that.taskId))
+          return false;
+      }
+
+      boolean this_present_status = true;
+      boolean that_present_status = true;
+      if (this_present_status || that_present_status) {
+        if (!(this_present_status && that_present_status))
+          return false;
+        if (this.status != that.status)
+          return false;
+      }
+
+      boolean this_present_message = true && this.isSetMessage();
+      boolean that_present_message = true && that.isSetMessage();
+      if (this_present_message || that_present_message) {
+        if (!(this_present_message && that_present_message))
+          return false;
+        if (!this.message.equals(that.message))
+          return false;
+      }
+
+      boolean this_present_hostAddress = true && this.isSetHostAddress();
+      boolean that_present_hostAddress = true && that.isSetHostAddress();
+      if (this_present_hostAddress || that_present_hostAddress) {
+        if (!(this_present_hostAddress && that_present_hostAddress))
+          return false;
+        if (!this.hostAddress.equals(that.hostAddress))
+          return false;
+      }
+
+      return true;
+    }
+
+    @Override
+    public int hashCode() {
+      return 0;
+    }
+
+    public int compareTo(sendSchedulerMessage_args other) {
+      if (!getClass().equals(other.getClass())) {
+        return getClass().getName().compareTo(other.getClass().getName());
+      }
+
+      int lastComparison = 0;
+      sendSchedulerMessage_args typedOther = (sendSchedulerMessage_args)other;
+
+      lastComparison = Boolean.valueOf(isSetApp()).compareTo(typedOther.isSetApp());
+      if (lastComparison != 0) {
+        return lastComparison;
+      }
+      if (isSetApp()) {
+        lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.app, typedOther.app);
+        if (lastComparison != 0) {
+          return lastComparison;
+        }
+      }
+      lastComparison = Boolean.valueOf(isSetTaskId()).compareTo(typedOther.isSetTaskId());
+      if (lastComparison != 0) {
+        return lastComparison;
+      }
+      if (isSetTaskId()) {
+        lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.taskId, typedOther.taskId);
+        if (lastComparison != 0) {
+          return lastComparison;
+        }
+      }
+      lastComparison = Boolean.valueOf(isSetStatus()).compareTo(typedOther.isSetStatus());
+      if (lastComparison != 0) {
+        return lastComparison;
+      }
+      if (isSetStatus()) {
+        lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.status, typedOther.status);
+        if (lastComparison != 0) {
+          return lastComparison;
+        }
+      }
+      lastComparison = Boolean.valueOf(isSetMessage()).compareTo(typedOther.isSetMessage());
+      if (lastComparison != 0) {
+        return lastComparison;
+      }
+      if (isSetMessage()) {
+        lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.message, typedOther.message);
+        if (lastComparison != 0) {
+          return lastComparison;
+        }
+      }
+      lastComparison = Boolean.valueOf(isSetHostAddress()).compareTo(typedOther.isSetHostAddress());
+      if (lastComparison != 0) {
+        return lastComparison;
+      }
+      if (isSetHostAddress()) {
+        lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.hostAddress, typedOther.hostAddress);
+        if (lastComparison != 0) {
+          return lastComparison;
+        }
+      }
+      return 0;
+    }
+
+    public _Fields fieldForId(int fieldId) {
+      return _Fields.findByThriftId(fieldId);
+    }
+
+    public void read(org.apache.thrift.protocol.TProtocol iprot) throws org.apache.thrift.TException {
+      schemes.get(iprot.getScheme()).getScheme().read(iprot, this);
+    }
+
+    public void write(org.apache.thrift.protocol.TProtocol oprot) throws org.apache.thrift.TException {
+      schemes.get(oprot.getScheme()).getScheme().write(oprot, this);
+    }
+
+    @Override
+    public String toString() {
+      StringBuilder sb = new StringBuilder("sendSchedulerMessage_args(");
+      boolean first = true;
+
+      sb.append("app:");
+      if (this.app == null) {
+        sb.append("null");
+      } else {
+        sb.append(this.app);
+      }
+      first = false;
+      if (!first) sb.append(", ");
+      sb.append("taskId:");
+      if (this.taskId == null) {
+        sb.append("null");
+      } else {
+        sb.append(this.taskId);
+      }
+      first = false;
+      if (!first) sb.append(", ");
+      sb.append("status:");
+      sb.append(this.status);
+      first = false;
+      if (!first) sb.append(", ");
+      sb.append("message:");
+      if (this.message == null) {
+        sb.append("null");
+      } else {
+        org.apache.thrift.TBaseHelper.toString(this.message, sb);
+      }
+      first = false;
+      if (!first) sb.append(", ");
+      sb.append("hostAddress:");
+      if (this.hostAddress == null) {
+        sb.append("null");
+      } else {
+        sb.append(this.hostAddress);
+      }
+      first = false;
+      sb.append(")");
+      return sb.toString();
+    }
+
+    public void validate() throws org.apache.thrift.TException {
+      // check for required fields
+      // check for sub-struct validity
+      if (taskId != null) {
+        taskId.validate();
+      }
+    }
+
+    private void writeObject(java.io.ObjectOutputStream out) throws java.io.IOException {
+      try {
+        write(new org.apache.thrift.protocol.TCompactProtocol(new org.apache.thrift.transport.TIOStreamTransport(out)));
+      } catch (org.apache.thrift.TException te) {
+        throw new java.io.IOException(te.getMessage());
+      }
+    }
+
+    private void readObject(java.io.ObjectInputStream in) throws java.io.IOException, ClassNotFoundException {
+      try {
+        // it doesn't seem like you should have to do this, but java serialization is wacky, and doesn't call the default constructor.
+        __isset_bitfield = 0;
+        read(new org.apache.thrift.protocol.TCompactProtocol(new org.apache.thrift.transport.TIOStreamTransport(in)));
+      } catch (org.apache.thrift.TException te) {
+        throw new java.io.IOException(te.getMessage());
+      }
+    }
+
+    private static class sendSchedulerMessage_argsStandardSchemeFactory implements SchemeFactory {
+      public sendSchedulerMessage_argsStandardScheme getScheme() {
+        return new sendSchedulerMessage_argsStandardScheme();
+      }
+    }
+
+    private static class sendSchedulerMessage_argsStandardScheme extends StandardScheme<sendSchedulerMessage_args> {
+
+      public void read(org.apache.thrift.protocol.TProtocol iprot, sendSchedulerMessage_args struct) throws org.apache.thrift.TException {
+        org.apache.thrift.protocol.TField schemeField;
+        iprot.readStructBegin();
+        while (true)
+        {
+          schemeField = iprot.readFieldBegin();
+          if (schemeField.type == org.apache.thrift.protocol.TType.STOP) { 
+            break;
+          }
+          switch (schemeField.id) {
+            case 1: // APP
+              if (schemeField.type == org.apache.thrift.protocol.TType.STRING) {
+                struct.app = iprot.readString();
+                struct.setAppIsSet(true);
+              } else { 
+                org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
+              }
+              break;
+            case 2: // TASK_ID
+              if (schemeField.type == org.apache.thrift.protocol.TType.STRUCT) {
+                struct.taskId = new edu.berkeley.sparrow.thrift.TFullTaskId();
+                struct.taskId.read(iprot);
+                struct.setTaskIdIsSet(true);
+              } else { 
+                org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
+              }
+              break;
+            case 3: // STATUS
+              if (schemeField.type == org.apache.thrift.protocol.TType.I32) {
+                struct.status = iprot.readI32();
+                struct.setStatusIsSet(true);
+              } else { 
+                org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
+              }
+              break;
+            case 4: // MESSAGE
+              if (schemeField.type == org.apache.thrift.protocol.TType.STRING) {
+                struct.message = iprot.readBinary();
+                struct.setMessageIsSet(true);
+              } else { 
+                org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
+              }
+              break;
+            case 5: // HOST_ADDRESS
+              if (schemeField.type == org.apache.thrift.protocol.TType.STRING) {
+                struct.hostAddress = iprot.readString();
+                struct.setHostAddressIsSet(true);
+              } else { 
+                org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
+              }
+              break;
+            default:
+              org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
+          }
+          iprot.readFieldEnd();
+        }
+        iprot.readStructEnd();
+
+        // check for required fields of primitive type, which can't be checked in the validate method
+        struct.validate();
+      }
+
+      public void write(org.apache.thrift.protocol.TProtocol oprot, sendSchedulerMessage_args struct) throws org.apache.thrift.TException {
+        struct.validate();
+
+        oprot.writeStructBegin(STRUCT_DESC);
+        if (struct.app != null) {
+          oprot.writeFieldBegin(APP_FIELD_DESC);
+          oprot.writeString(struct.app);
+          oprot.writeFieldEnd();
+        }
+        if (struct.taskId != null) {
+          oprot.writeFieldBegin(TASK_ID_FIELD_DESC);
+          struct.taskId.write(oprot);
+          oprot.writeFieldEnd();
+        }
+        oprot.writeFieldBegin(STATUS_FIELD_DESC);
+        oprot.writeI32(struct.status);
+        oprot.writeFieldEnd();
+        if (struct.message != null) {
+          oprot.writeFieldBegin(MESSAGE_FIELD_DESC);
+          oprot.writeBinary(struct.message);
+          oprot.writeFieldEnd();
+        }
+        if (struct.hostAddress != null) {
+          oprot.writeFieldBegin(HOST_ADDRESS_FIELD_DESC);
+          oprot.writeString(struct.hostAddress);
+          oprot.writeFieldEnd();
+        }
+        oprot.writeFieldStop();
+        oprot.writeStructEnd();
+      }
+
+    }
+
+    private static class sendSchedulerMessage_argsTupleSchemeFactory implements SchemeFactory {
+      public sendSchedulerMessage_argsTupleScheme getScheme() {
+        return new sendSchedulerMessage_argsTupleScheme();
+      }
+    }
+
+    private static class sendSchedulerMessage_argsTupleScheme extends TupleScheme<sendSchedulerMessage_args> {
+
+      @Override
+      public void write(org.apache.thrift.protocol.TProtocol prot, sendSchedulerMessage_args struct) throws org.apache.thrift.TException {
+        TTupleProtocol oprot = (TTupleProtocol) prot;
+        BitSet optionals = new BitSet();
+        if (struct.isSetApp()) {
+          optionals.set(0);
+        }
+        if (struct.isSetTaskId()) {
+          optionals.set(1);
+        }
+        if (struct.isSetStatus()) {
+          optionals.set(2);
+        }
+        if (struct.isSetMessage()) {
+          optionals.set(3);
+        }
+        if (struct.isSetHostAddress()) {
+          optionals.set(4);
+        }
+        oprot.writeBitSet(optionals, 5);
+        if (struct.isSetApp()) {
+          oprot.writeString(struct.app);
+        }
+        if (struct.isSetTaskId()) {
+          struct.taskId.write(oprot);
+        }
+        if (struct.isSetStatus()) {
+          oprot.writeI32(struct.status);
+        }
+        if (struct.isSetMessage()) {
+          oprot.writeBinary(struct.message);
+        }
+        if (struct.isSetHostAddress()) {
+          oprot.writeString(struct.hostAddress);
+        }
+      }
+
+      @Override
+      public void read(org.apache.thrift.protocol.TProtocol prot, sendSchedulerMessage_args struct) throws org.apache.thrift.TException {
+        TTupleProtocol iprot = (TTupleProtocol) prot;
+        BitSet incoming = iprot.readBitSet(5);
+        if (incoming.get(0)) {
+          struct.app = iprot.readString();
+          struct.setAppIsSet(true);
+        }
+        if (incoming.get(1)) {
+          struct.taskId = new edu.berkeley.sparrow.thrift.TFullTaskId();
+          struct.taskId.read(iprot);
+          struct.setTaskIdIsSet(true);
+        }
+        if (incoming.get(2)) {
+          struct.status = iprot.readI32();
+          struct.setStatusIsSet(true);
+        }
+        if (incoming.get(3)) {
+          struct.message = iprot.readBinary();
+          struct.setMessageIsSet(true);
+        }
+        if (incoming.get(4)) {
+          struct.hostAddress = iprot.readString();
+          struct.setHostAddressIsSet(true);
+        }
+      }
+    }
+
+  }
+
+  public static class sendSchedulerMessage_result implements org.apache.thrift.TBase<sendSchedulerMessage_result, sendSchedulerMessage_result._Fields>, java.io.Serializable, Cloneable   {
+    private static final org.apache.thrift.protocol.TStruct STRUCT_DESC = new org.apache.thrift.protocol.TStruct("sendSchedulerMessage_result");
+
+
+    private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
+    static {
+      schemes.put(StandardScheme.class, new sendSchedulerMessage_resultStandardSchemeFactory());
+      schemes.put(TupleScheme.class, new sendSchedulerMessage_resultTupleSchemeFactory());
+    }
+
+
+    /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
+    public enum _Fields implements org.apache.thrift.TFieldIdEnum {
+;
+
+      private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
+
+      static {
+        for (_Fields field : EnumSet.allOf(_Fields.class)) {
+          byName.put(field.getFieldName(), field);
+        }
+      }
+
+      /**
+       * Find the _Fields constant that matches fieldId, or null if its not found.
+       */
+      public static _Fields findByThriftId(int fieldId) {
+        switch(fieldId) {
+          default:
+            return null;
+        }
+      }
+
+      /**
+       * Find the _Fields constant that matches fieldId, throwing an exception
+       * if it is not found.
+       */
+      public static _Fields findByThriftIdOrThrow(int fieldId) {
+        _Fields fields = findByThriftId(fieldId);
+        if (fields == null) throw new IllegalArgumentException("Field " + fieldId + " doesn't exist!");
+        return fields;
+      }
+
+      /**
+       * Find the _Fields constant that matches name, or null if its not found.
+       */
+      public static _Fields findByName(String name) {
+        return byName.get(name);
+      }
+
+      private final short _thriftId;
+      private final String _fieldName;
+
+      _Fields(short thriftId, String fieldName) {
+        _thriftId = thriftId;
+        _fieldName = fieldName;
+      }
+
+      public short getThriftFieldId() {
+        return _thriftId;
+      }
+
+      public String getFieldName() {
+        return _fieldName;
+      }
+    }
+    public static final Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
+    static {
+      Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
+      metaDataMap = Collections.unmodifiableMap(tmpMap);
+      org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(sendSchedulerMessage_result.class, metaDataMap);
+    }
+
+    public sendSchedulerMessage_result() {
+    }
+
+    /**
+     * Performs a deep copy on <i>other</i>.
+     */
+    public sendSchedulerMessage_result(sendSchedulerMessage_result other) {
+    }
+
+    public sendSchedulerMessage_result deepCopy() {
+      return new sendSchedulerMessage_result(this);
+    }
+
+    public void clear() {
+    }
+
+    public void setFieldValue(_Fields field, Object value) {
+      switch (field) {
+      }
+    }
+
+    public Object getFieldValue(_Fields field) {
+      switch (field) {
+      }
+      throw new IllegalStateException();
+    }
+
+    /** Returns true if field corresponding to fieldID is set (has been assigned a value) and false otherwise */
+    public boolean isSet(_Fields field) {
+      if (field == null) {
+        throw new IllegalArgumentException();
+      }
+
+      switch (field) {
+      }
+      throw new IllegalStateException();
+    }
+
+    @Override
+    public boolean equals(Object that) {
+      if (that == null)
+        return false;
+      if (that instanceof sendSchedulerMessage_result)
+        return this.equals((sendSchedulerMessage_result)that);
+      return false;
+    }
+
+    public boolean equals(sendSchedulerMessage_result that) {
+      if (that == null)
+        return false;
+
+      return true;
+    }
+
+    @Override
+    public int hashCode() {
+      return 0;
+    }
+
+    public int compareTo(sendSchedulerMessage_result other) {
+      if (!getClass().equals(other.getClass())) {
+        return getClass().getName().compareTo(other.getClass().getName());
+      }
+
+      int lastComparison = 0;
+      sendSchedulerMessage_result typedOther = (sendSchedulerMessage_result)other;
+
+      return 0;
+    }
+
+    public _Fields fieldForId(int fieldId) {
+      return _Fields.findByThriftId(fieldId);
+    }
+
+    public void read(org.apache.thrift.protocol.TProtocol iprot) throws org.apache.thrift.TException {
+      schemes.get(iprot.getScheme()).getScheme().read(iprot, this);
+    }
+
+    public void write(org.apache.thrift.protocol.TProtocol oprot) throws org.apache.thrift.TException {
+      schemes.get(oprot.getScheme()).getScheme().write(oprot, this);
+      }
+
+    @Override
+    public String toString() {
+      StringBuilder sb = new StringBuilder("sendSchedulerMessage_result(");
+      boolean first = true;
+
+      sb.append(")");
+      return sb.toString();
+    }
+
+    public void validate() throws org.apache.thrift.TException {
+      // check for required fields
+      // check for sub-struct validity
+    }
+
+    private void writeObject(java.io.ObjectOutputStream out) throws java.io.IOException {
+      try {
+        write(new org.apache.thrift.protocol.TCompactProtocol(new org.apache.thrift.transport.TIOStreamTransport(out)));
+      } catch (org.apache.thrift.TException te) {
+        throw new java.io.IOException(te.getMessage());
+      }
+    }
+
+    private void readObject(java.io.ObjectInputStream in) throws java.io.IOException, ClassNotFoundException {
+      try {
+        read(new org.apache.thrift.protocol.TCompactProtocol(new org.apache.thrift.transport.TIOStreamTransport(in)));
+      } catch (org.apache.thrift.TException te) {
+        throw new java.io.IOException(te.getMessage());
+      }
+    }
+
+    private static class sendSchedulerMessage_resultStandardSchemeFactory implements SchemeFactory {
+      public sendSchedulerMessage_resultStandardScheme getScheme() {
+        return new sendSchedulerMessage_resultStandardScheme();
+      }
+    }
+
+    private static class sendSchedulerMessage_resultStandardScheme extends StandardScheme<sendSchedulerMessage_result> {
+
+      public void read(org.apache.thrift.protocol.TProtocol iprot, sendSchedulerMessage_result struct) throws org.apache.thrift.TException {
+        org.apache.thrift.protocol.TField schemeField;
+        iprot.readStructBegin();
+        while (true)
+        {
+          schemeField = iprot.readFieldBegin();
+          if (schemeField.type == org.apache.thrift.protocol.TType.STOP) { 
+            break;
+          }
+          switch (schemeField.id) {
+            default:
+              org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
+          }
+          iprot.readFieldEnd();
+        }
+        iprot.readStructEnd();
+
+        // check for required fields of primitive type, which can't be checked in the validate method
+        struct.validate();
+      }
+
+      public void write(org.apache.thrift.protocol.TProtocol oprot, sendSchedulerMessage_result struct) throws org.apache.thrift.TException {
+        struct.validate();
+
+        oprot.writeStructBegin(STRUCT_DESC);
+        oprot.writeFieldStop();
+        oprot.writeStructEnd();
+      }
+
+    }
+
+    private static class sendSchedulerMessage_resultTupleSchemeFactory implements SchemeFactory {
+      public sendSchedulerMessage_resultTupleScheme getScheme() {
+        return new sendSchedulerMessage_resultTupleScheme();
+      }
+    }
+
+    private static class sendSchedulerMessage_resultTupleScheme extends TupleScheme<sendSchedulerMessage_result> {
+
+      @Override
+      public void write(org.apache.thrift.protocol.TProtocol prot, sendSchedulerMessage_result struct) throws org.apache.thrift.TException {
+        TTupleProtocol oprot = (TTupleProtocol) prot;
+      }
+
+      @Override
+      public void read(org.apache.thrift.protocol.TProtocol prot, sendSchedulerMessage_result struct) throws org.apache.thrift.TException {
         TTupleProtocol iprot = (TTupleProtocol) prot;
       }
     }
