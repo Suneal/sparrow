@@ -200,4 +200,55 @@ public class NodeMonitor {
       LOG.error(e);
     }
   }
+
+  private class sendSchedulerMessageCallback implements
+          AsyncMethodCallback<AsyncClient.sendSchedulerMessage_call> {
+    private InetSocketAddress frontendSocket;
+    private AsyncClient client;
+    public sendSchedulerMessageCallback(InetSocketAddress socket, AsyncClient client) {
+      frontendSocket = socket;
+      this.client = client;
+    }
+
+    public void onComplete(AsyncClient.sendSchedulerMessage_call response) { //sendSchedulerMessage_call
+      try { schedulerClientPool.returnClient(frontendSocket, client); }
+      catch (Exception e) { LOG.error(e); }
+    }
+
+    public void onError(Exception exception) {
+      try { schedulerClientPool.returnClient(frontendSocket, client); }
+      catch (Exception e) { LOG.error(e); }
+      LOG.error(exception);
+    }
+  }
+
+
+  public void sendSchedulerMessage(String app, TFullTaskId taskId,
+                                   int status, ByteBuffer message, String hostAddress) {
+    LOG.debug(Logging.functionCall(app, taskId, message));
+    if (!requestSchedulers.containsKey(taskId.getRequestId())) {
+      LOG.error("Missing scheduler info for request: " + taskId);
+      return;
+    }
+    InetSocketAddress scheduler = requestSchedulers.get(taskId.getRequestId());
+    if (scheduler == null) {
+      LOG.error("null scheduler info for request: " + taskId);
+      return;
+    }
+
+    try {
+      LOG.debug("taskID: " + taskId + " scheduler: " +
+              scheduler.getHostName() + " app:" + app);
+      AsyncClient client = schedulerClientPool.borrowClient(scheduler);
+      client.sendSchedulerMessage(app, taskId, status, message,hostAddress,
+              new sendSchedulerMessageCallback(scheduler, client));
+      LOG.debug("finished sending message");
+    } catch (IOException e) {
+      LOG.error(e);
+    } catch (TException e) {
+      LOG.error(e);
+    } catch (Exception e) {
+      LOG.error(e);
+    }
+  }
 }
