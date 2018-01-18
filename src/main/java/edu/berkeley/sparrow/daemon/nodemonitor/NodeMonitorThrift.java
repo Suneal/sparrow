@@ -35,13 +35,14 @@ import edu.berkeley.sparrow.thrift.NodeMonitorService;
 import edu.berkeley.sparrow.thrift.TCancelTaskReservationsRequest;
 import edu.berkeley.sparrow.thrift.TEnqueueTaskReservationsRequest;
 import edu.berkeley.sparrow.thrift.TFullTaskId;
+import org.apache.thrift.async.AsyncMethodCallback;
 
 /**
  * This class extends the thrift Sparrow node monitor interface. It wraps the
  * {@link NodeMonitor} class and delegates most calls to that class.
  */
 public class NodeMonitorThrift implements NodeMonitorService.Iface,
-                                          InternalService.Iface {
+                                          InternalService.Iface, NodeMonitorService.AsyncIface {
   // Defaults if not specified by configuration
   public final static int DEFAULT_NM_THRIFT_PORT = 20501;
   public final static int DEFAULT_NM_THRIFT_THREADS = 32;
@@ -121,5 +122,21 @@ public class NodeMonitorThrift implements NodeMonitorService.Iface,
   public void cancelTaskReservations(TCancelTaskReservationsRequest request)
       throws TException {
     nodeMonitor.cancelTaskReservations(request.requestId);
+  }
+
+  public void registerBackend(String app, String listenSocket, AsyncMethodCallback<NodeMonitorService.AsyncClient.registerBackend_call> resultHandler) throws TException {
+  }
+
+  public void tasksFinished(List<TFullTaskId> tasks, AsyncMethodCallback<NodeMonitorService.AsyncClient.tasksFinished_call> resultHandler) throws TException {
+    nodeMonitor.tasksFinished(tasks);
+  }
+
+  public void sendFrontendMessage(String app, TFullTaskId taskId, int status, ByteBuffer message, AsyncMethodCallback<NodeMonitorService.AsyncClient.sendFrontendMessage_call> resultHandler) throws TException {
+
+  }
+
+  public void sendSchedulerMessage(String app, TFullTaskId taskId, int status, ByteBuffer message, String hostAddress, AsyncMethodCallback<NodeMonitorService.AsyncClient.sendSchedulerMessage_call> resultHandler) throws TException {
+    nodeMonitor.sendSchedulerMessage(app, taskId, status, message, hostAddress);
+
   }
 }

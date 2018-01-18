@@ -33,12 +33,13 @@ import edu.berkeley.sparrow.thrift.TFullTaskId;
 import edu.berkeley.sparrow.thrift.THostPort;
 import edu.berkeley.sparrow.thrift.TSchedulingRequest;
 import edu.berkeley.sparrow.thrift.TTaskLaunchSpec;
+import org.apache.thrift.async.AsyncMethodCallback;
 
 /**
  * This class extends the thrift sparrow scheduler interface. It wraps the
  * {@link Scheduler} class and delegates most calls to that class.
  */
-public class SchedulerThrift implements SchedulerService.Iface, GetTaskService.Iface {
+public class SchedulerThrift implements SchedulerService.Iface, GetTaskService.Iface, SchedulerService.AsyncIface {
   // Defaults if not specified by configuration
   public final static int DEFAULT_SCHEDULER_THRIFT_PORT = 20503;
   private final static int DEFAULT_SCHEDULER_THRIFT_THREADS = 8;
@@ -98,4 +99,19 @@ public class SchedulerThrift implements SchedulerService.Iface, GetTaskService.I
     scheduler.sendSchedulerMessage(app, taskId, status, message, hostAddress);
   }
 
+  public void registerFrontend(String app, String socketAddress, AsyncMethodCallback<SchedulerService.AsyncClient.registerFrontend_call> resultHandler) throws TException {
+
+  }
+
+  public void submitJob(TSchedulingRequest req, AsyncMethodCallback<SchedulerService.AsyncClient.submitJob_call> resultHandler) throws TException {
+
+  }
+
+  public void sendFrontendMessage(String app, TFullTaskId taskId, int status, ByteBuffer message, AsyncMethodCallback<SchedulerService.AsyncClient.sendFrontendMessage_call> resultHandler) throws TException {
+
+  }
+
+  public void sendSchedulerMessage(String app, TFullTaskId taskId, int status, ByteBuffer message, String hostAddress, AsyncMethodCallback<SchedulerService.AsyncClient.sendSchedulerMessage_call> resultHandler) throws TException {
+    scheduler.sendSchedulerMessage(app, taskId, status, message, hostAddress);
+  }
 }
