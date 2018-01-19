@@ -267,7 +267,7 @@ public class SimpleBackend implements BackendService.Iface {
         props.load(new StringReader(workSpeed.replace(",", "\n")));
         for (Map.Entry<Object, Object> e : props.entrySet()) {
             if ((String.valueOf(e.getKey())).equals(thisHost)) {
-                hostWorkSpeed = Double.valueOf((Straing) e.getValue());
+                hostWorkSpeed = Double.valueOf((String) e.getValue());
             }
         }
 
