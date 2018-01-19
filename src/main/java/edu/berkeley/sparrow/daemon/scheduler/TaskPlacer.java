@@ -17,10 +17,7 @@
 package edu.berkeley.sparrow.daemon.scheduler;
 
 import java.net.InetSocketAddress;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import edu.berkeley.sparrow.daemon.SparrowConf;
 import edu.berkeley.sparrow.thrift.TEnqueueTaskReservationsRequest;
@@ -54,7 +51,7 @@ public interface TaskPlacer {
   public Map<InetSocketAddress, TEnqueueTaskReservationsRequest>
       getEnqueueTaskReservationsRequests(
           TSchedulingRequest schedulingRequest, String requestId,
-          Collection<InetSocketAddress> nodes, THostPort schedulerAddress, String workSpeedMap);
+          Collection<InetSocketAddress> nodes, THostPort schedulerAddress, HashMap<String, Double> estimatedWorkSpeedMap);
 
   /**
    * Returns a List of {@link TTaskLaunchSpec}s describing tasks that should be launched from the

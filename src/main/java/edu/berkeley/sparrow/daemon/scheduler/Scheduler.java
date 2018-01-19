@@ -68,6 +68,10 @@ public class Scheduler {
   /** How many times the special case has been triggered. */
   private AtomicInteger specialCaseCounter = new AtomicInteger(0);
 
+  /** Estimated Worker Speed HashMap **/ //TODO are we continuously updating the map???
+  public static HashMap<String, Double> estimatedWorkerSpeedMap = new HashMap<String, Double>();
+  private final double DEFAULT_WORKER_SPEED = 1.0;
+
   private THostPort address;
 
   /** Socket addresses for each frontend. */
@@ -334,25 +338,32 @@ public class Scheduler {
                                             address.getHost(), address.getPort(),
                                             user, description, constrained));
 
+    LOG.debug("Learning Enabled");
+    if(estimatedWorkerSpeedMap.isEmpty()){
+      for (InetSocketAddress node : backends) {
+        estimatedWorkerSpeedMap.put(node.getAddress().getHostAddress(), DEFAULT_WORKER_SPEED);
+      }
+    }
+
     TaskPlacer taskPlacer;
     if (constrained) {
       if (request.isSetProbeRatio()) {
-        taskPlacer = new ConstrainedTaskPlacer(requestId, request.getProbeRatio(), workerSpeedMap);
+        taskPlacer = new ConstrainedTaskPlacer(requestId, request.getProbeRatio());
       } else {
-        taskPlacer = new ConstrainedTaskPlacer(requestId, defaultProbeRatioConstrained, workerSpeedMap);
+        taskPlacer = new ConstrainedTaskPlacer(requestId, defaultProbeRatioConstrained);
       }
     } else {
       if (request.isSetProbeRatio()) {
-        taskPlacer = new UnconstrainedTaskPlacer(requestId, request.getProbeRatio(), workerSpeedMap);
+        taskPlacer = new UnconstrainedTaskPlacer(requestId, request.getProbeRatio());
       } else {
-        taskPlacer = new UnconstrainedTaskPlacer(requestId, defaultProbeRatioUnconstrained, workerSpeedMap);
+        taskPlacer = new UnconstrainedTaskPlacer(requestId, defaultProbeRatioUnconstrained);
       }
     }
     requestTaskPlacers.put(requestId, taskPlacer);
 
     Map<InetSocketAddress, TEnqueueTaskReservationsRequest> enqueueTaskReservationsRequests;
     enqueueTaskReservationsRequests = taskPlacer.getEnqueueTaskReservationsRequests(
-        request, requestId, backends, address, workerSpeedMap);
+        request, requestId, backends, address, estimatedWorkerSpeedMap);
 
     // Request to enqueue a task at each of the selected nodes.
     for (Entry<InetSocketAddress, TEnqueueTaskReservationsRequest> entry :
@@ -504,7 +515,8 @@ public class Scheduler {
     LOG.debug(Logging.functionCall(app, taskId, message));
     double workerSpeed = message.getDouble();
     LOG.debug("THIS IS SCHEDULER where WS:--> " + workerSpeed + "Host Address: " + hostAddress);
-    //estimatedWorkerSpeedMap.put(hostAddress, String.valueOf(workerSpeed)); --> Add this line to pass workerSpeedMap to the
+
+    estimatedWorkerSpeedMap.put(hostAddress, workerSpeed);// --> Add this line to pass workerSpeedMap to the
     //LOG.debug("THIS IS SCHEDULER where Map--> " + estimatedWorkerSpeedMap);
     InetSocketAddress frontend = frontendSockets.get(app);
     if (frontend == null) {
