@@ -156,7 +156,7 @@ public class SimpleBackend implements BackendService.Iface {
 //            finishedTasks.add(taskId);
             ByteBuffer message = ByteBuffer.allocate(8);
             //Send the task Completion Time
-            message.putDouble(11111); //Add the estimated worker speed
+            message.putDouble(0.1); //Add the estimated worker speed
             try {
                 client.sendSchedulerMessage(taskId.appId, taskId, 0, ByteBuffer.wrap(message.array()), thisHost);
             } catch (TException e) {
@@ -258,7 +258,7 @@ public class SimpleBackend implements BackendService.Iface {
             workSpeed = workSpeed + node + ",";
         }
 
-        String thisHost = Inet4Address.getLocalHost().getHostAddress();
+        thisHost = Inet4Address.getLocalHost().getHostAddress();
 
 
         //Getting rid of repeated parsing of the string
@@ -267,7 +267,7 @@ public class SimpleBackend implements BackendService.Iface {
         props.load(new StringReader(workSpeed.replace(",", "\n")));
         for (Map.Entry<Object, Object> e : props.entrySet()) {
             if ((String.valueOf(e.getKey())).equals(thisHost)) {
-                hostWorkSpeed = Double.valueOf((String) e.getValue());
+                hostWorkSpeed = Double.valueOf((Straing) e.getValue());
             }
         }
 

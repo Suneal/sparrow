@@ -516,6 +516,7 @@ public class Scheduler {
     double workerSpeed = message.getDouble();
     LOG.debug("THIS IS SCHEDULER where WS:--> " + workerSpeed + "Host Address: " + hostAddress);
 
+
     estimatedWorkerSpeedMap.put(hostAddress, workerSpeed);// --> Add this line to pass workerSpeedMap to the
     //LOG.debug("THIS IS SCHEDULER where Map--> " + estimatedWorkerSpeedMap);
     InetSocketAddress frontend = frontendSockets.get(app);
