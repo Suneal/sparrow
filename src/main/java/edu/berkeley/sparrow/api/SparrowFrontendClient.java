@@ -104,12 +104,12 @@ public class SparrowFrontendClient {
   public boolean submitJob(String app,
       List<edu.berkeley.sparrow.thrift.TTaskSpec> tasks, TUserGroupInfo user, String workSpeedMap)
           throws TException {
-    return submitRequest(new TSchedulingRequest(app, tasks, user, workSpeedMap));
+    return submitRequest(new TSchedulingRequest(app, tasks, user));
   }
 
   public boolean submitJob(String app, List<edu.berkeley.sparrow.thrift.TTaskSpec> tasks,
   	  TUserGroupInfo user, String description, String workSpeedMap) {
-  	TSchedulingRequest request = new TSchedulingRequest(app, tasks, user, workSpeedMap);
+  	TSchedulingRequest request = new TSchedulingRequest(app, tasks, user);
   	request.setDescription(description);
   	return submitRequest(request);
   }
@@ -118,7 +118,7 @@ public class SparrowFrontendClient {
       List<edu.berkeley.sparrow.thrift.TTaskSpec> tasks, TUserGroupInfo user,
       double probeRatio, String workSpeedMap)
           throws TException {
-    TSchedulingRequest request = new TSchedulingRequest(app, tasks, user, workSpeedMap);
+    TSchedulingRequest request = new TSchedulingRequest(app, tasks, user);
     request.setProbeRatio(probeRatio);
     return submitRequest(request);
   }

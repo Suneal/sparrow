@@ -316,7 +316,7 @@ public class Scheduler {
     }
 
     String app = request.getApp();
-    String workerSpeedMap = request.getWorkSpeedMap();
+
 
     List<TTaskSpec> tasks = request.getTasks();
     Set<InetSocketAddress> backends = state.getBackends(app);
