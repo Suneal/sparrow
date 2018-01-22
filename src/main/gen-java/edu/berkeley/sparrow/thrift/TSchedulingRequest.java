@@ -38,7 +38,6 @@ public class TSchedulingRequest implements org.apache.thrift.TBase<TSchedulingRe
   private static final org.apache.thrift.protocol.TField USER_FIELD_DESC = new org.apache.thrift.protocol.TField("user", org.apache.thrift.protocol.TType.STRUCT, (short)3);
   private static final org.apache.thrift.protocol.TField DESCRIPTION_FIELD_DESC = new org.apache.thrift.protocol.TField("description", org.apache.thrift.protocol.TType.STRING, (short)4);
   private static final org.apache.thrift.protocol.TField PROBE_RATIO_FIELD_DESC = new org.apache.thrift.protocol.TField("probeRatio", org.apache.thrift.protocol.TType.DOUBLE, (short)5);
-  private static final org.apache.thrift.protocol.TField WORK_SPEED_MAP_FIELD_DESC = new org.apache.thrift.protocol.TField("workSpeedMap", org.apache.thrift.protocol.TType.STRING, (short)6);
 
   private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
   static {
@@ -51,7 +50,6 @@ public class TSchedulingRequest implements org.apache.thrift.TBase<TSchedulingRe
   public TUserGroupInfo user; // required
   public String description; // optional
   public double probeRatio; // optional
-  public String workSpeedMap; // required
 
   /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
   public enum _Fields implements org.apache.thrift.TFieldIdEnum {
@@ -59,8 +57,7 @@ public class TSchedulingRequest implements org.apache.thrift.TBase<TSchedulingRe
     TASKS((short)2, "tasks"),
     USER((short)3, "user"),
     DESCRIPTION((short)4, "description"),
-    PROBE_RATIO((short)5, "probeRatio"),
-    WORK_SPEED_MAP((short)6, "workSpeedMap");
+    PROBE_RATIO((short)5, "probeRatio");
 
     private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
 
@@ -85,8 +82,6 @@ public class TSchedulingRequest implements org.apache.thrift.TBase<TSchedulingRe
           return DESCRIPTION;
         case 5: // PROBE_RATIO
           return PROBE_RATIO;
-        case 6: // WORK_SPEED_MAP
-          return WORK_SPEED_MAP;
         default:
           return null;
       }
@@ -144,8 +139,6 @@ public class TSchedulingRequest implements org.apache.thrift.TBase<TSchedulingRe
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
     tmpMap.put(_Fields.PROBE_RATIO, new org.apache.thrift.meta_data.FieldMetaData("probeRatio", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.DOUBLE)));
-    tmpMap.put(_Fields.WORK_SPEED_MAP, new org.apache.thrift.meta_data.FieldMetaData("workSpeedMap", org.apache.thrift.TFieldRequirementType.DEFAULT, 
-        new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
     metaDataMap = Collections.unmodifiableMap(tmpMap);
     org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(TSchedulingRequest.class, metaDataMap);
   }
@@ -156,14 +149,12 @@ public class TSchedulingRequest implements org.apache.thrift.TBase<TSchedulingRe
   public TSchedulingRequest(
     String app,
     List<TTaskSpec> tasks,
-    TUserGroupInfo user,
-    String workSpeedMap)
+    TUserGroupInfo user)
   {
     this();
     this.app = app;
     this.tasks = tasks;
     this.user = user;
-    this.workSpeedMap = workSpeedMap;
   }
 
   /**
@@ -188,9 +179,6 @@ public class TSchedulingRequest implements org.apache.thrift.TBase<TSchedulingRe
       this.description = other.description;
     }
     this.probeRatio = other.probeRatio;
-    if (other.isSetWorkSpeedMap()) {
-      this.workSpeedMap = other.workSpeedMap;
-    }
   }
 
   public TSchedulingRequest deepCopy() {
@@ -204,7 +192,6 @@ public class TSchedulingRequest implements org.apache.thrift.TBase<TSchedulingRe
     this.description = null;
     setProbeRatioIsSet(false);
     this.probeRatio = 0.0;
-    this.workSpeedMap = null;
   }
 
   public String getApp() {
@@ -341,30 +328,6 @@ public class TSchedulingRequest implements org.apache.thrift.TBase<TSchedulingRe
     __isset_bitfield = EncodingUtils.setBit(__isset_bitfield, __PROBERATIO_ISSET_ID, value);
   }
 
-  public String getWorkSpeedMap() {
-    return this.workSpeedMap;
-  }
-
-  public TSchedulingRequest setWorkSpeedMap(String workSpeedMap) {
-    this.workSpeedMap = workSpeedMap;
-    return this;
-  }
-
-  public void unsetWorkSpeedMap() {
-    this.workSpeedMap = null;
-  }
-
-  /** Returns true if field workSpeedMap is set (has been assigned a value) and false otherwise */
-  public boolean isSetWorkSpeedMap() {
-    return this.workSpeedMap != null;
-  }
-
-  public void setWorkSpeedMapIsSet(boolean value) {
-    if (!value) {
-      this.workSpeedMap = null;
-    }
-  }
-
   public void setFieldValue(_Fields field, Object value) {
     switch (field) {
     case APP:
@@ -407,14 +370,6 @@ public class TSchedulingRequest implements org.apache.thrift.TBase<TSchedulingRe
       }
       break;
 
-    case WORK_SPEED_MAP:
-      if (value == null) {
-        unsetWorkSpeedMap();
-      } else {
-        setWorkSpeedMap((String)value);
-      }
-      break;
-
     }
   }
 
@@ -434,9 +389,6 @@ public class TSchedulingRequest implements org.apache.thrift.TBase<TSchedulingRe
 
     case PROBE_RATIO:
       return Double.valueOf(getProbeRatio());
-
-    case WORK_SPEED_MAP:
-      return getWorkSpeedMap();
 
     }
     throw new IllegalStateException();
@@ -459,8 +411,6 @@ public class TSchedulingRequest implements org.apache.thrift.TBase<TSchedulingRe
       return isSetDescription();
     case PROBE_RATIO:
       return isSetProbeRatio();
-    case WORK_SPEED_MAP:
-      return isSetWorkSpeedMap();
     }
     throw new IllegalStateException();
   }
@@ -520,15 +470,6 @@ public class TSchedulingRequest implements org.apache.thrift.TBase<TSchedulingRe
       if (!(this_present_probeRatio && that_present_probeRatio))
         return false;
       if (this.probeRatio != that.probeRatio)
-        return false;
-    }
-
-    boolean this_present_workSpeedMap = true && this.isSetWorkSpeedMap();
-    boolean that_present_workSpeedMap = true && that.isSetWorkSpeedMap();
-    if (this_present_workSpeedMap || that_present_workSpeedMap) {
-      if (!(this_present_workSpeedMap && that_present_workSpeedMap))
-        return false;
-      if (!this.workSpeedMap.equals(that.workSpeedMap))
         return false;
     }
 
@@ -598,16 +539,6 @@ public class TSchedulingRequest implements org.apache.thrift.TBase<TSchedulingRe
         return lastComparison;
       }
     }
-    lastComparison = Boolean.valueOf(isSetWorkSpeedMap()).compareTo(typedOther.isSetWorkSpeedMap());
-    if (lastComparison != 0) {
-      return lastComparison;
-    }
-    if (isSetWorkSpeedMap()) {
-      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.workSpeedMap, typedOther.workSpeedMap);
-      if (lastComparison != 0) {
-        return lastComparison;
-      }
-    }
     return 0;
   }
 
@@ -667,14 +598,6 @@ public class TSchedulingRequest implements org.apache.thrift.TBase<TSchedulingRe
       sb.append(this.probeRatio);
       first = false;
     }
-    if (!first) sb.append(", ");
-    sb.append("workSpeedMap:");
-    if (this.workSpeedMap == null) {
-      sb.append("null");
-    } else {
-      sb.append(this.workSpeedMap);
-    }
-    first = false;
     sb.append(")");
     return sb.toString();
   }
@@ -775,14 +698,6 @@ public class TSchedulingRequest implements org.apache.thrift.TBase<TSchedulingRe
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
             }
             break;
-          case 6: // WORK_SPEED_MAP
-            if (schemeField.type == org.apache.thrift.protocol.TType.STRING) {
-              struct.workSpeedMap = iprot.readString();
-              struct.setWorkSpeedMapIsSet(true);
-            } else { 
-              org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
-            }
-            break;
           default:
             org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
         }
@@ -832,11 +747,6 @@ public class TSchedulingRequest implements org.apache.thrift.TBase<TSchedulingRe
         oprot.writeDouble(struct.probeRatio);
         oprot.writeFieldEnd();
       }
-      if (struct.workSpeedMap != null) {
-        oprot.writeFieldBegin(WORK_SPEED_MAP_FIELD_DESC);
-        oprot.writeString(struct.workSpeedMap);
-        oprot.writeFieldEnd();
-      }
       oprot.writeFieldStop();
       oprot.writeStructEnd();
     }
@@ -870,10 +780,7 @@ public class TSchedulingRequest implements org.apache.thrift.TBase<TSchedulingRe
       if (struct.isSetProbeRatio()) {
         optionals.set(4);
       }
-      if (struct.isSetWorkSpeedMap()) {
-        optionals.set(5);
-      }
-      oprot.writeBitSet(optionals, 6);
+      oprot.writeBitSet(optionals, 5);
       if (struct.isSetApp()) {
         oprot.writeString(struct.app);
       }
@@ -895,15 +802,12 @@ public class TSchedulingRequest implements org.apache.thrift.TBase<TSchedulingRe
       if (struct.isSetProbeRatio()) {
         oprot.writeDouble(struct.probeRatio);
       }
-      if (struct.isSetWorkSpeedMap()) {
-        oprot.writeString(struct.workSpeedMap);
-      }
     }
 
     @Override
     public void read(org.apache.thrift.protocol.TProtocol prot, TSchedulingRequest struct) throws org.apache.thrift.TException {
       TTupleProtocol iprot = (TTupleProtocol) prot;
-      BitSet incoming = iprot.readBitSet(6);
+      BitSet incoming = iprot.readBitSet(5);
       if (incoming.get(0)) {
         struct.app = iprot.readString();
         struct.setAppIsSet(true);
@@ -934,10 +838,6 @@ public class TSchedulingRequest implements org.apache.thrift.TBase<TSchedulingRe
       if (incoming.get(4)) {
         struct.probeRatio = iprot.readDouble();
         struct.setProbeRatioIsSet(true);
-      }
-      if (incoming.get(5)) {
-        struct.workSpeedMap = iprot.readString();
-        struct.setWorkSpeedMapIsSet(true);
       }
     }
   }
