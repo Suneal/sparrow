@@ -116,7 +116,7 @@ public class SparrowFrontendClient {
 
   public boolean submitJob(String app,
       List<edu.berkeley.sparrow.thrift.TTaskSpec> tasks, TUserGroupInfo user,
-      double probeRatio, String workSpeedMap)
+      double probeRatio)
           throws TException {
     TSchedulingRequest request = new TSchedulingRequest(app, tasks, user);
     request.setProbeRatio(probeRatio);
